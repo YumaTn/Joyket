@@ -27,8 +27,8 @@ const UserInfo = ({ navigation }) => {
                     setAddress(parsedData.address);
                     setGender(parsedData.gender === true ? 'male' : 'female');
                     setImage(parsedData.image);
-                    setUserId(parsedData.userId); 
-                    setToken(parsedData.token);
+                    setUserId(parsedData.userId); // Giả sử 'userId' được lưu trữ
+                    setToken(parsedData.token); // Giả sử 'token' được lưu trữ
                 }
             } catch (error) {
                 console.error('Error loading data from storage', error);
@@ -40,46 +40,45 @@ const UserInfo = ({ navigation }) => {
 
     // Hàm xử lý cập nhật thông tin người dùng
     const handleUpdate = async () => {
-        const genderBoolean = gender === 'male';
-    
+        // Chuyển đổi giới tính thành boolean
+        const genderBoolean = gender === 'male' ? true : false;
+
+        // Kiểm tra xem userId đã được lấy chưa
         if (!userId) {
             Alert.alert('Lỗi', 'Không tìm thấy ID người dùng.');
             return;
         }
-    
-        // Lấy mật khẩu từ AsyncStorage
-        const userData = await AsyncStorage.getItem('userData');
-        const parsedData = userData ? JSON.parse(userData) : null;
-        const password = parsedData ? parsedData.password : null;
-    
+
         const updatedUser = {
-            userId: userId,
+            userId: userId, // Thêm trường userId
             name: username,
             email: userEmail,
             phone: phone,
             address: address,
             gender: genderBoolean,
-            image: image,
-            password: password, // Gửi mật khẩu để xác minh
+            image: image, // Giả sử hình ảnh là URL hoặc đã được xử lý
+            // Thêm các trường khác nếu cần
         };
-    
+
         console.log('User ID:', userId);
         console.log('Updated User:', updatedUser);
-    
+
         if (token && userId) {
             setLoading(true);
             try {
-                const response = await axios.put(`http://192.168.2.18:8080/api/auth/${userId}`, updatedUser, {
+                const response = await axios.put(`https://api.yourdomain.com/api/auth/${userId}`, updatedUser, {
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`,
+                        'Authorization': `${token}`, // Thêm header Authorization nếu backend yêu cầu
                     },
                 });
-    
+
                 if (response.status === 200) {
+                    // Cập nhật AsyncStorage với dữ liệu mới
                     const updatedUserData = { ...response.data };
                     await AsyncStorage.setItem('userData', JSON.stringify(updatedUserData));
                     Alert.alert('Thành công', 'Thông tin cá nhân đã được cập nhật.');
+                    // Có thể thêm logic để làm mới dữ liệu hoặc điều hướng
                 } else {
                     Alert.alert('Lỗi', 'Đã xảy ra lỗi khi cập nhật thông tin.');
                 }
@@ -97,7 +96,7 @@ const UserInfo = ({ navigation }) => {
             Alert.alert('Lỗi', 'Người dùng chưa được xác thực.');
         }
     };
-    
+
     return (
         <SafeAreaView style={{ flex: 1 }}>
             <TouchableOpacity onPress={() => navigation.goBack()}>
@@ -115,7 +114,7 @@ const UserInfo = ({ navigation }) => {
                         style={styles.image}
                     />
                 ) : (
-                    <View style={styles.imagePlaceholder} />
+                    <Text style={{ textAlign: 'center', marginVertical: 10 }}>No profile image available</Text>
                 )}
                 
                 <View>
@@ -275,13 +274,6 @@ const styles = StyleSheet.create({
     scrollViewContent: {
         paddingBottom: 20,
         paddingHorizontal: 20,
-    },
-    imagePlaceholder: {
-        width: 50,
-        height: 50,
-        borderRadius: 25,
-        marginLeft: 150,
-        backgroundColor: '#CCCCCC',
     },
 });
 

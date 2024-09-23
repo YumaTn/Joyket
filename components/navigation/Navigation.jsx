@@ -5,9 +5,9 @@ import Noti from '../screen/Notification/Noti.jsx';
 import Profile from '../screen/Profile/Profile.jsx';
 import SCREENS from './index.jsx';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import Favorite from '../screen/Favorite/Favorite.jsx';
 
 const Tab = createBottomTabNavigator();
-
 const Navigation = () => {
   return (
     <Tab.Navigator
@@ -41,6 +41,16 @@ const Navigation = () => {
         }}
       />
       <Tab.Screen
+        name={SCREENS.FAVORITE}
+        component={Favorite}
+        options={{
+          title: '',
+          tabBarIcon: ({ focused }) => (
+            <Icon name="favorite" size={30} color={focused ? 'white' : 'black'} />
+          ),
+        }}
+      />
+      <Tab.Screen
         name={SCREENS.NOTIFICATION}
         component={Noti}
         options={{
@@ -65,3 +75,4 @@ const Navigation = () => {
 };
  
 export default Navigation;
+

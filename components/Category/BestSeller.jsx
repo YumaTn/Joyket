@@ -1,12 +1,12 @@
 import React from 'react'
 import { Text, View } from 'react-native'
 
-const Detail = () => {
+const BestSeller = () => {
   return (
     <View>
-        <Text>Detail</Text>
+        <Text>BestSeller</Text>
     </View>
   )
 }
 
-export default Detail
+export default BestSeller

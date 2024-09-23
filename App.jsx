@@ -3,9 +3,13 @@ import PlashScreen from './components/screen/PlashScreen/PlashScreen';
 import Navigation from './components/navigation/Navigation';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
-import Detail from './components/screen/Home/Detail';
+
 import UserInfo from './components/screen/Profile/UserInfo';
 import Login from './components/screen/Login/Login';
+import ProductDetail from './components/screen/Home/ProductDetail';
+import Cart from './components/Cart/Cart';
+import Checkout from './components/Cart/Checkout';
+import HistoryTrans from './components/History/HistoryTrans';
 
 const Stack = createStackNavigator();
 
@@ -18,6 +22,7 @@ export default function App() {
           headerShown: false,
         }}
       >
+        
         <Stack.Screen
           name="PlashScreen"
           component={PlashScreen} />
@@ -28,11 +33,20 @@ export default function App() {
           name="Navigation"
           component={Navigation} />
           <Stack.Screen
-          name="Detail"
-          component={Detail} />
+          name="ProductDetail"
+          component={ProductDetail} />
           <Stack.Screen
           name="Info"
           component={UserInfo} />
+          <Stack.Screen
+          name="Cart"
+          component={Cart} />
+          <Stack.Screen
+          name="Checkout"
+          component={Checkout} />
+          <Stack.Screen
+          name="History"
+          component={HistoryTrans} />
       </Stack.Navigator>
     </NavigationContainer>
   );

@@ -7,7 +7,7 @@ const PlashScreen = ({ navigation }) => {
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      navigation.replace('login');
+      navigation.replace('Navigation');
     }, 2000);
     return () => clearTimeout(timer);
   }, [navigation]);

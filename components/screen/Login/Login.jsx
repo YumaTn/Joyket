@@ -7,6 +7,21 @@ const Login = ({ navigation }) => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
 
+    const fetchUserId = async (userEmail) => {
+        try {
+            const response = await axios.get(`http://192.168.2.18:8080/api/auth/email/${userEmail}`);
+            const { userId } = response.data; // Giả sử API trả về userId
+            console.log('User ID:', userId);
+            
+            // Lưu userId vào AsyncStorage, đảm bảo là chuỗi
+            await AsyncStorage.setItem('userId', JSON.stringify(userId));
+        } catch (error) {
+            console.error('Error fetching userId:', error);
+            Alert.alert('Lỗi', 'Không thể lấy thông tin người dùng. Vui lòng thử lại sau.');
+        }
+    };
+    
+
     const handleLogin = async () => {
         try {
             const response = await axios.post('http://192.168.2.18:8080/api/auth/signin', {
@@ -16,22 +31,17 @@ const Login = ({ navigation }) => {
     
             console.log('API response:', response.data);
     
-            const { userId, name, email: userEmail, phone, address, gender, registerDate, token, image, status,id } = response.data;
-            console.log('userId:', userId);
-            console.log('name:', name);
-            console.log('email:', userEmail);
-            console.log('phone:', phone);
-            console.log('address:', address);
-            console.log('gender:', gender);
-            console.log('registerDate:', registerDate);
-            console.log('token:', token);
-            console.log('image:', image);
-            console.log('status:', status);
-            console.log('id:', id);
+            const { name, phone, address, gender, registerDate, token, image, status, id } = response.data;
+    
+            // Lấy userId từ API
+            const userIdResponse = await axios.get(`http://192.168.2.18:8080/api/auth/email/${email}`);
+            const userId = userIdResponse.data.userId; 
+            console.log('User ID:', userId);
+            console.log('Password:', password);
+            // Lưu thông tin người dùng vào AsyncStorage
             await AsyncStorage.setItem('userData', JSON.stringify({
-                userId,
+                email,
                 name,
-                email: userEmail,
                 phone,
                 address,
                 gender,
@@ -39,13 +49,14 @@ const Login = ({ navigation }) => {
                 token,
                 image,
                 status,
-                id
+                id,
+                userId,
+                password // Lưu mật khẩu (không khuyến khích)
             }));
     
             navigation.replace('Navigation'); 
     
         } catch (error) {
-
             if (error.response) {
                 console.log('Server responded with status:', error.response.status);
                 console.log('Error details:', error.response.data);
@@ -59,6 +70,7 @@ const Login = ({ navigation }) => {
             }
         }
     };
+    
     
     return (
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
