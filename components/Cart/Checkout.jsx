@@ -15,8 +15,8 @@ const PaymentScreen = ({ route, navigation }) => {
   const [cartId, setCartId] = useState(null);
   const [totalPrice, setTotalPrice] = useState(0);
 
-  const API_URL_CART = 'http://192.168.2.18:8080/api/cart/user';
-  const API_URL_CART_DETAIL = 'http://192.168.2.18:8080/api/cartDetail/cart';
+  const API_URL_CART = 'http://10.87.29.105:8080/api/cart/user';
+  const API_URL_CART_DETAIL = 'http://10.87.29.105:8080/api/cartDetail/cart';
 
   useEffect(() => {
     const fetchUserDataFromStorage = async () => {
@@ -61,13 +61,10 @@ const PaymentScreen = ({ route, navigation }) => {
         try {
           const response = await axios.get(`${API_URL_CART_DETAIL}/${cartId}`);
           const details = response.data.filter(item => selectedCartDetailIds.includes(item.cartDetailId));
-          console.log('Cart Details Response:', details);
           
           // Calculate total price
           const total = details.reduce((sum, item) => sum + (item.price ), 0);
-          console.log('Total before discount:', total);
           const discountedTotal = total - discount;
-          console.log('Discounted Total:', discountedTotal);
           setCartDetails(details);
           setTotalPrice(discountedTotal < 0 ? 0 : discountedTotal);
         } catch (error) {
@@ -81,10 +78,54 @@ const PaymentScreen = ({ route, navigation }) => {
     }
   }, [cartId, selectedCartDetailIds, discount]);
 
-  const handleConfirmPayment = () => {
-    alert('Đã thanh toán thành công!');
-    navigation.navigate('Navigation');
+  const handleConfirmPayment = async () => {
+    try {
+      // Gọi API để lấy cart thông qua email
+      const cartResponse = await axios.get(`${API_URL_CART}/${email}`);
+      const cart = cartResponse.data;
+  
+      // So sánh cartId từ API với cartId từ state
+      if (cart.cartId === cartId) {
+        // Tạo đối tượng cart đã cập nhật với thông tin mới
+        const updatedCart = {
+          ...cart, // Giữ nguyên các thông tin khác của cart
+          address: address,
+          phone: phone,
+        };
+  
+        // Gửi yêu cầu PUT để cập nhật cart
+        const updateResponse = await axios.put(`http://10.87.29.105:8080/api/cart/user/${email}`, updatedCart);
+        
+        if (updateResponse.status === 200) {
+          // Tạo đối tượng đơn hàng với thông tin cần thiết
+          const orderData = {
+            cartId: cartId,  // ID giỏ hàng
+            address: address,  // Địa chỉ giao hàng
+            phone: phone,  // Số điện thoại liên hệ
+            discount: discount,  // Giảm giá (nếu có)
+          };
+  
+          // Gọi API để tạo đơn hàng
+          const orderResponse = await axios.post(`http://10.87.29.105:8080/api/orders/${email}`, orderData);
+          
+          if (orderResponse.status === 200) {
+            alert('Đã thanh toán thành công và cập nhật thông tin!');
+            navigation.navigate('Navigation'); // Điều hướng đến trang tiếp theo
+          } else {
+            alert('Có lỗi xảy ra khi tạo đơn hàng.');
+          }
+        } else {
+          alert('Cập nhật thông tin không thành công.');
+        }
+      } else {
+        alert('Cart ID không khớp. Không thể cập nhật thông tin.');
+      }
+    } catch (error) {
+      console.error('Error updating cart information:', error);
+      alert('Có lỗi xảy ra khi cập nhật thông tin.');
+    }
   };
+  
 
   const renderItem = ({ item }) => (
     <View style={styles.summaryRow}>
@@ -155,7 +196,6 @@ const PaymentScreen = ({ route, navigation }) => {
     </View>
   );
 };
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -165,7 +205,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 10,
-    paddingTop: 20,
+    paddingTop: 30,
     paddingBottom: 10,
     backgroundColor: '#FFCA09',
     paddingLeft: 10,

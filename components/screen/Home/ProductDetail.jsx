@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, Image, TouchableOpacity, Dimensions, Alert } from 'react-native';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
-import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import FontAwesome from '@expo/vector-icons/FontAwesome';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ScrollView } from 'react-native-gesture-handler';
-import FontAwesome from '@expo/vector-icons/FontAwesome';
+import { LogoIcon } from '../../../assets/icon';
 
 const { width } = Dimensions.get('window');
 
@@ -12,7 +12,8 @@ const ProductDetail = ({ route, navigation }) => {
   const [product, setProduct] = useState({});
   const { productId } = route.params;
   const [ProductDetailImage, setProductDetailImage] = useState(null);
-
+  const [isFavorite, setIsFavorite] = useState(false);
+  const [favoriteId, setFavoriteId] = useState(null);
   useEffect(() => {
     const loadProductData = async () => {
       try {
@@ -38,25 +39,63 @@ const ProductDetail = ({ route, navigation }) => {
         console.error('Error loading stored data:', error);
       }
     };
-
+    const checkIfFavorite = async () => {
+      try {
+        const userData = await AsyncStorage.getItem('userData');
+        if (userData) {
+          const parsedData = JSON.parse(userData);
+          const email = parsedData.email;
+    
+          const response = await fetch(`http://10.87.29.105:8080/api/favorites/email/${email}`, {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${parsedData.token}`,
+            },
+          });
+    
+          if (!response.ok) {
+            throw new Error('Error fetching favorites');
+          }
+    
+          const favoritesData = await response.json();
+          console.log('Favorites data:', favoritesData); // Debug line
+    
+          // Kiểm tra nếu productId trong favoritesData có trùng với productId hiện tại không
+          const favoriteItem = favoritesData.find(fav => fav.product.productId === productId);
+          console.log('Favorite item:', favoriteItem); // Debug line
+    
+          // Cập nhật trạng thái isFavorite và favoriteId
+          if (favoriteItem) {
+            setIsFavorite(true);
+            setFavoriteId(favoriteItem.favoriteId); // Giả sử id là thuộc tính của item yêu thích
+          } else {
+            setIsFavorite(false);
+            setFavoriteId(null); // Nếu không có, set về null
+          }
+        }
+      } catch (error) {
+        console.error('Error checking favorite status:', error);
+      }
+    };
     loadProductData();
     loadProductDetailImage();
+    checkIfFavorite();
   }, [productId]);
 
   const formatPrice = (price) => {
     if (price) {
       return price.toLocaleString('vi-VN');
     }
-    return 'N/A'; 
+    return 'N/A';
   };
 
   const addToCart = async () => {
     try {
-      // Lấy dữ liệu người dùng từ AsyncStorage
       const userData = await AsyncStorage.getItem('userData');
       if (!userData) {
         Alert.alert('Error', 'Bạn chưa đăng nhập. Vui lòng đăng nhập để sử dụng dịch vụ.');
-        navigation.navigate('Login'); // Chuyển hướng đến trang đăng nhập
+        navigation.navigate('login');
         return;
       }
 
@@ -66,16 +105,15 @@ const ProductDetail = ({ route, navigation }) => {
 
       if (!token || !email) {
         Alert.alert('Error', 'Token hoặc email không hợp lệ. Vui lòng đăng nhập lại.');
-        navigation.navigate('login'); // Chuyển hướng đến trang đăng nhập
+        navigation.navigate('login');
         return;
       }
 
-      // Lấy thông tin giỏ hàng hiện tại của người dùng
-      const cartResponse = await fetch(`http://192.168.2.18:8080/api/cart/user/${email}`, {
+      const cartResponse = await fetch(`http://10.87.29.105:8080/api/cart/user/${email}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`, // Đính kèm token vào header
+          'Authorization': `Bearer ${token}`,
         },
       });
 
@@ -87,20 +125,18 @@ const ProductDetail = ({ route, navigation }) => {
       const cartData = await cartResponse.json();
       const cartId = cartData.cartId;
 
-      // Tạo đối tượng CartDetail
       const cartDetail = {
         quantity: 1,
-        price: product.price, // Sử dụng giá sản phẩm từ state
-        product: { productId: productId }, // Đảm bảo đúng tên trường như backend yêu cầu
+        price: product.price,
+        product: { productId: productId },
         cart: { cartId: cartId },
       };
 
-      // Gửi chi tiết giỏ hàng đến server
-      const postDetailResponse = await fetch(`http://192.168.2.18:8080/api/cartDetail`, {
+      const postDetailResponse = await fetch(`http://10.87.29.105:8080/api/cartDetail`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`, // Đính kèm token vào header
+          'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify(cartDetail),
       });
@@ -109,9 +145,7 @@ const ProductDetail = ({ route, navigation }) => {
 
       if (postDetailResponse.ok) {
         Alert.alert('Success', 'Thêm sản phẩm vào giỏ hàng thành công!');
-        
-        // Lấy lại tất cả chi tiết giỏ hàng để cập nhật số lượng sản phẩm
-        const allDetailsResponse = await fetch(`http://192.168.2.18:8080/api/cartDetail/cart/${cartId}`, {
+        const allDetailsResponse = await fetch(`http://10.87.29.105:8080/api/cartDetail/cart/${cartId}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -125,11 +159,7 @@ const ProductDetail = ({ route, navigation }) => {
         }
 
         const allDetailsData = await allDetailsResponse.json();
-
-        // Cập nhật số lượng sản phẩm trong giỏ hàng (ví dụ: lưu vào AsyncStorage hoặc cập nhật state)
         await AsyncStorage.setItem('cartLength', JSON.stringify(allDetailsData.length));
-        // Nếu bạn muốn cập nhật state hoặc context, hãy thực hiện tại đây
-        // Ví dụ: setCartLength(allDetailsData.length);
       } else {
         Alert.alert('Error', `Thêm sản phẩm vào giỏ hàng thất bại: ${postDetailData.message || 'Lỗi không xác định.'}`);
       }
@@ -138,6 +168,91 @@ const ProductDetail = ({ route, navigation }) => {
       Alert.alert('Error', `Đã xảy ra lỗi: ${error.message}`);
     }
   };
+
+  const addToFavorites = async () => {
+    try {
+      const userData = await AsyncStorage.getItem('userData');
+      if (!userData) {
+        Alert.alert('Error', 'Bạn chưa đăng nhập. Vui lòng đăng nhập để sử dụng dịch vụ.');
+        navigation.navigate('login');
+        return;
+      }
+  
+      const parsedUserData = JSON.parse(userData);
+      const token = parsedUserData.token;
+      const email = parsedUserData.email;
+      const userId = parsedUserData.userId; // Assuming userId is stored here
+  
+      if (!token || !email || !userId) {
+        Alert.alert('Error', 'Token, email hoặc userId không hợp lệ. Vui lòng đăng nhập lại.');
+        navigation.navigate('login');
+        return;
+      }
+  
+      // Tạo đối tượng yêu thích
+      const favoriteDetail = {
+        user: { userId: userId }, // Cấu trúc đối tượng cho người dùng
+        product: { productId: productId }, // Cấu trúc đối tượng cho sản phẩm
+      };
+  
+      // Gửi yêu cầu thêm sản phẩm vào yêu thích
+      const favoriteResponse = await fetch(`http://10.87.29.105:8080/api/favorites/email`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify(favoriteDetail),
+      });
+  
+      const favoriteData = await favoriteResponse.json();
+  
+      if (favoriteResponse.ok) {
+        Alert.alert('Success', 'Thêm sản phẩm vào danh sách yêu thích thành công!');
+        setIsFavorite(true); // Cập nhật trạng thái ngay lập tức
+        setFavoriteId(favoriteData.favoriteId); // Nếu có favoriteId từ phản hồi
+      } else {
+        Alert.alert('Error', `Thêm sản phẩm vào danh sách yêu thích thất bại: ${favoriteData.message || 'Lỗi không xác định.'}`);
+      }
+    } catch (error) {
+      console.error('Error adding product to favorites:', error);
+      Alert.alert('Error', `Đã xảy ra lỗi: ${error.message}`);
+    }
+  };
+  
+  const removeFromFavorites = async () => {
+    try {
+      const userData = await AsyncStorage.getItem('userData');
+      if (!userData) {
+        Alert.alert('Error', 'Bạn chưa đăng nhập. Vui lòng đăng nhập để sử dụng dịch vụ.');
+        navigation.navigate('login');
+        return;
+      }
+  
+      const parsedUserData = JSON.parse(userData);
+      const token = parsedUserData.token;
+  
+      const response = await fetch(`http://10.87.29.105:8080/api/favorites/${favoriteId}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+  
+      if (response.ok) {
+        setIsFavorite(false); 
+        setFavoriteId(null); // Reset favoriteId
+      } else {
+        const errorData = await response.json();
+        Alert.alert('Error', `Xóa sản phẩm khỏi danh sách yêu thích thất bại: ${errorData.message || 'Lỗi không xác định.'}`);
+      }
+    } catch (error) {
+      console.error('Error removing product from favorites:', error);
+      Alert.alert('Error', `Đã xảy ra lỗi: ${error.message}`);
+    }
+  };
+  
 
   return (
     <View style={styles.container}>
@@ -155,11 +270,7 @@ const ProductDetail = ({ route, navigation }) => {
           </View>
         </TouchableOpacity>
         <View style={styles.rightHeader}>
-          {ProductDetailImage ? (
-            <Image source={{ uri: ProductDetailImage }} style={styles.ProductDetailImage} />
-          ) : (
-            <MaterialCommunityIcons name="face-man-profile" size={24} color="black" />
-          )}
+          <LogoIcon />
         </View>
       </View>
       <ScrollView contentContainerStyle={styles.scrollViewContainer}>
@@ -174,9 +285,24 @@ const ProductDetail = ({ route, navigation }) => {
                 Giá: <Text style={styles.price}>{formatPrice(product.price)} VNĐ</Text>
               </Text>
               <View style={styles.FCartContainer}>
-                <TouchableOpacity>
-                  <MaterialIcons style={{ marginRight: 10 }} name="favorite-border" size={24} color="black" />
+                <TouchableOpacity
+                  onPress={() => {
+                    if (isFavorite) {
+                      // Gọi đến hàm xóa nếu sản phẩm đã yêu thích
+                      removeFromFavorites(favoriteId); // Gọi hàm xóa với favoriteId
+                    } else {
+                      // Gọi đến hàm thêm nếu sản phẩm chưa yêu thích
+                      addToFavorites();
+                    }
+                  }}>
+                  <MaterialIcons
+                    style={{ marginRight: 10 }}
+                    name={isFavorite ? "favorite" : "favorite-border"} // Thay đổi biểu tượng dựa trên trạng thái yêu thích
+                    size={24}
+                    color={isFavorite ? "red" : "black"} // Thay đổi màu sắc dựa trên trạng thái yêu thích
+                  />
                 </TouchableOpacity>
+
                 <TouchableOpacity onPress={addToCart}>
                   <FontAwesome name="opencart" size={24} color="black" />
                 </TouchableOpacity>

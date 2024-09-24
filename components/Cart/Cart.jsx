@@ -4,10 +4,10 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
-const API_URL_CART = 'http://192.168.2.18:8080/api/cart/user';
-const API_URL_CART_DETAIL = 'http://192.168.2.18:8080/api/cartDetail/cart';
-const API_URL_PRODUCTS = 'http://192.168.2.18:8080/api/products';
-const API_URL_UPDATE_CART_DETAIL = 'http://192.168.2.18:8080/api/cartDetail'; 
+const API_URL_CART = 'http://10.87.29.105:8080/api/cart/user';
+const API_URL_CART_DETAIL = 'http://10.87.29.105:8080/api/cartDetail/cart';
+const API_URL_PRODUCTS = 'http://10.87.29.105:8080/api/products';
+const API_URL_UPDATE_CART_DETAIL = 'http://10.87.29.105:8080/api/cartDetail'; 
 
 const Cart = ({ navigation }) => {
   const [email, setEmail] = useState(null); 
@@ -152,6 +152,7 @@ const Cart = ({ navigation }) => {
     const discountValue = discount;
     navigation.navigate('Checkout', { selectedCartDetailIds, totalValue, discountValue });
   };
+
   const renderItem = ({ item }) => {
     const product = products[item.product.productId] || {};
     const isSelected = selectedItems[item.cartDetailId] || false;
@@ -240,18 +241,21 @@ const Cart = ({ navigation }) => {
         })}
         <View style={styles.summaryFooter}>
           <Text style={styles.summaryFooterText}>Giảm giá: {discount.toLocaleString()} VND</Text>
-          <Text style={styles.summaryFooterText}>
-            Tổng giá trị: {selectedCartItems.reduce((total, item) => total + item.price, 0).toLocaleString()} VND
-          </Text>
+          <Text style={styles.summaryFooterText}>Tổng: {amount.toLocaleString()} VND</Text>
         </View>
+        <TouchableOpacity
+          style={[styles.paymentButton, selectedCartItems.length === 0 && styles.paymentButtonDisabled]}
+          onPress={handlePayment}
+          disabled={selectedCartItems.length === 0}
+        >
+          <Text style={styles.paymentButtonText}>
+            {selectedCartItems.length === 0 ? 'Vui lòng chọn sản phẩm' : 'Thanh toán'}
+          </Text>
+        </TouchableOpacity>
       </View>
-      <TouchableOpacity style={styles.paymentButton} onPress={handlePayment}>
-        <Text style={styles.paymentButtonText}>Thanh toán</Text>
-      </TouchableOpacity>
     </View>
   );
 };
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -262,7 +266,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 5,
-    paddingTop: 20,
+    paddingTop: 30,
     paddingBottom: 10,
     backgroundColor: '#FFCA09',
     paddingLeft: 10,

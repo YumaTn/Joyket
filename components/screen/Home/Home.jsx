@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Dimensions, StyleSheet, Text, View, Image, ActivityIndicator, TextInput, TouchableWithoutFeedback, Keyboard } from 'react-native';
+import { Dimensions, StyleSheet, Text, View, Image, ActivityIndicator, TextInput, TouchableWithoutFeedback, Keyboard, Alert } from 'react-native';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { FlatList, TouchableOpacity } from 'react-native-gesture-handler';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { AntDesign, FontAwesome, Ionicons } from '@expo/vector-icons';
+import { AntDesign, FontAwesome } from '@expo/vector-icons';
+import { LogoIcon } from '../../../assets/icon';
 
 const { width } = Dimensions.get('window');
 const numColumns = 2;
@@ -17,12 +18,13 @@ const Home = ({ navigation }) => {
   const [search, setSearch] = useState('');
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const searchInputRef = useRef(null);
+  const [isLoggedIn, setIsLoggedIn] = useState(false); // State to track login status
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const response = await fetch('http://192.168.2.18:8080/api/products');
+        const response = await fetch('http://10.87.29.105:8080/api/products');
         const data = await response.json();
 
         const productsData = data.map(product => ({
@@ -51,7 +53,6 @@ const Home = ({ navigation }) => {
           const parsedData = JSON.parse(storedProductsData);
           setProducts(parsedData);
           setFilteredProducts(parsedData);
-          setLoading(false);
         } else {
           fetchData();
         }
@@ -60,9 +61,12 @@ const Home = ({ navigation }) => {
         if (userData) {
           const parsedData = JSON.parse(userData);
           setProfileImage(parsedData.image);
+          setIsLoggedIn(true); // Set login status if user data exists
         }
       } catch (error) {
         console.error('Error loading stored data:', error);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -91,6 +95,20 @@ const Home = ({ navigation }) => {
       searchInputRef.current.focus();
     } else {
       searchInputRef.current.blur();
+    }
+  };
+
+  const handleCartPress = async () => {
+    if (!isLoggedIn) {
+      Alert.alert('Cảnh báo', 'Bạn cần đăng nhập để mua hàng.', [
+        {
+          text: 'Đăng nhập',
+          onPress: () => navigation.navigate('login'),
+        },
+        { text: 'Hủy', style: 'cancel' },
+      ]);
+    } else {
+      navigation.navigate('Cart');
     }
   };
 
@@ -139,22 +157,18 @@ const Home = ({ navigation }) => {
               onBlur={() => setIsSearchFocused(false)}
             />
           </View>
-          <TouchableOpacity onPress={() => navigation.navigate('Cart')}>
+          <TouchableOpacity onPress={handleCartPress}>
             <FontAwesome
               style={{
                 marginTop: 15,
-                marginRight: 20
+                marginRight: 10
               }}
               name="opencart"
               size={24}
               color="black"
             />
-          </TouchableOpacity>
-          {profileImage ? (
-            <Image source={{ uri: profileImage }} style={styles.profileImage} />
-          ) : (
-            <MaterialCommunityIcons name="face-man-profile" size={24} color="black" />
-          )}
+          </TouchableOpacity>   
+            <LogoIcon/>
         </View>
         <Text style={styles.Title}>Sản phẩm :</Text>
         <FlatList
@@ -263,7 +277,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     height: 40,
     paddingHorizontal: 10,
-    width: '70%',
+    width: '65%',
     alignSelf: 'center',
     marginLeft: 10,
   },

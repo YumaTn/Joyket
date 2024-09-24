@@ -9,7 +9,7 @@ const Login = ({ navigation }) => {
 
     const fetchUserId = async (userEmail) => {
         try {
-            const response = await axios.get(`http://192.168.2.18:8080/api/auth/email/${userEmail}`);
+            const response = await axios.get(`http://10.87.29.105:8080/api/auth/email/${userEmail}`);
             const { userId } = response.data; // Giả sử API trả về userId
             console.log('User ID:', userId);
             
@@ -24,7 +24,7 @@ const Login = ({ navigation }) => {
 
     const handleLogin = async () => {
         try {
-            const response = await axios.post('http://192.168.2.18:8080/api/auth/signin', {
+            const response = await axios.post('http://10.87.29.105:8080/api/auth/signin', {
                 email,
                 password,
             });
@@ -34,7 +34,7 @@ const Login = ({ navigation }) => {
             const { name, phone, address, gender, registerDate, token, image, status, id } = response.data;
     
             // Lấy userId từ API
-            const userIdResponse = await axios.get(`http://192.168.2.18:8080/api/auth/email/${email}`);
+            const userIdResponse = await axios.get(`http://10.87.29.105:8080/api/auth/email/${email}`);
             const userId = userIdResponse.data.userId; 
             console.log('User ID:', userId);
             console.log('Password:', password);
