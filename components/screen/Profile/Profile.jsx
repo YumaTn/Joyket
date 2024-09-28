@@ -37,13 +37,18 @@ const Profile = ({ navigation }) => {
             await AsyncStorage.clear(); 
             setIsLoggedIn(false); // Set logged in status to false
             Alert.alert('Đăng xuất thành công', 'Bạn đã đăng xuất khỏi tài khoản.'); // Success alert
+            
+            // Check the storage after clearing
+            const remainingData = await AsyncStorage.getAllKeys(); // Get all keys remaining in AsyncStorage
+            console.log('Remaining AsyncStorage keys after logout:', remainingData); // Log remaining keys
+            
             navigation.navigate('login'); // Navigate to login screen
         } catch (error) {
             console.error('Error clearing storage', error);
             Alert.alert('Logout Failed', 'There was an error logging out. Please try again.');
         }
     };
-
+    
     return (
         <View style={styles.container}>
             {isLoggedIn ? (

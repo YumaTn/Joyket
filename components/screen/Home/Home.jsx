@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Dimensions, StyleSheet, Text, View, Image, ActivityIndicator, TextInput, TouchableWithoutFeedback, Keyboard, Alert } from 'react-native';
-import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { FlatList, TouchableOpacity } from 'react-native-gesture-handler';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AntDesign, FontAwesome } from '@expo/vector-icons';
 import { LogoIcon } from '../../../assets/icon';
+import { useNavigation } from '@react-navigation/native';
+import Ionicons from '@expo/vector-icons/Ionicons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const { width } = Dimensions.get('window');
 const numColumns = 2;
@@ -14,63 +15,49 @@ const Home = ({ navigation }) => {
   const [products, setProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [profileImage, setProfileImage] = useState(null);
   const [search, setSearch] = useState('');
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const searchInputRef = useRef(null);
-  const [isLoggedIn, setIsLoggedIn] = useState(false); // State to track login status
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
-    const fetchData = async () => {
+    const checkLoginStatus = async () => {
+      const token = await AsyncStorage.getItem('userData'); // Kiểm tra token từ AsyncStorage
+      setIsLoggedIn(!!token); // Nếu có token thì người dùng đã đăng nhập
+    };
+    const fetchProducts = async () => {
       try {
-        setLoading(true);
-        const response = await fetch('http://10.87.29.105:8080/api/products');
+        const response = await fetch('http://10.87.3.218:8080/api/products');
         const data = await response.json();
-
-        const productsData = data.map(product => ({
-          id: product.productId,
-          name: product.name,
-          price: product.price,
-          description: product.description,
-          image: product.image,
+        
+        // Lưu dữ liệu vào AsyncStorage
+        await AsyncStorage.setItem('productsData', JSON.stringify(data));
+        
+        // Lưu sản phẩm và in ra thông tin
+        const formattedData = data.map((item) => ({
+          productId: item.productId,
+          name: item.name,
+          price: item.price,
+          discount: item.discount,
+          image: item.image,
+          description: item.description,
+          enteredDate: item.enteredDate,
+          sold: item.sold,
+          categoryName: item.category.categoryName,
         }));
 
-        await AsyncStorage.setItem('productsData', JSON.stringify(productsData));
-
-        setProducts(productsData);
-        setFilteredProducts(productsData);
+        console.log(formattedData); // In ra thông tin sản phẩm
+        setProducts(formattedData);
+        setFilteredProducts(formattedData);
       } catch (error) {
-        console.error('Error fetching data:', error);
+        console.error('Lỗi khi lấy dữ liệu:', error);
+        Alert.alert('Lỗi', 'Không thể lấy dữ liệu sản phẩm.');
       } finally {
         setLoading(false);
       }
     };
-
-    const loadStoredData = async () => {
-      try {
-        const storedProductsData = await AsyncStorage.getItem('productsData');
-        if (storedProductsData) {
-          const parsedData = JSON.parse(storedProductsData);
-          setProducts(parsedData);
-          setFilteredProducts(parsedData);
-        } else {
-          fetchData();
-        }
-
-        const userData = await AsyncStorage.getItem('userData');
-        if (userData) {
-          const parsedData = JSON.parse(userData);
-          setProfileImage(parsedData.image);
-          setIsLoggedIn(true); // Set login status if user data exists
-        }
-      } catch (error) {
-        console.error('Error loading stored data:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadStoredData();
+    checkLoginStatus();
+    fetchProducts();
   }, []);
 
   const formatPrice = (price) => {
@@ -115,7 +102,7 @@ const Home = ({ navigation }) => {
   const renderItem = ({ item }) => (
     <TouchableOpacity
       style={styles.item}
-      onPress={() => navigation.navigate('ProductDetail', { productId: item.id })}
+      onPress={() => navigation.navigate('ProductDetail', { productId: item.productId })} // Sử dụng productId
     >
       {item.image ? (
         <Image source={{ uri: item.image }} style={styles.image} />
@@ -125,9 +112,10 @@ const Home = ({ navigation }) => {
       <View style={styles.textContainer}>
         <Text style={styles.name} numberOfLines={1}>{item.name}</Text>
         <Text style={styles.price}>{formatPrice(item.price)}</Text>
-        <Text style={styles.description} numberOfLines={3}>
-          {item.description}
-        </Text>
+        <Text style={styles.discount}>Giảm giá: {item.discount}%</Text>
+        <Text style={styles.sold}>Đã bán: {item.sold}</Text>
+        <Text style={styles.category}>Danh mục: {item.categoryName}</Text>
+        <Text style={styles.enteredDate}>Ngày nhập: {new Date(item.enteredDate).toLocaleDateString()}</Text>
       </View>
     </TouchableOpacity>
   );
@@ -143,38 +131,40 @@ const Home = ({ navigation }) => {
     }}>
       <View style={styles.container}>
         <View style={styles.header}>
-          <View style={styles.searchContainer}>
-            <TouchableOpacity onPress={toggleSearchFocus}>
-              <AntDesign name="search1" size={24} color="black" style={styles.icon} />
+          <View style={styles.headerLeft}>
+            <TouchableOpacity style={{ marginTop: 15 }} onPress={() => navigation.openDrawer()}>
+              <Ionicons name="reorder-three-outline" size={24} color="black" />
             </TouchableOpacity>
-            <TextInput
-              ref={searchInputRef}
-              placeholderTextColor="black"
-              style={[styles.searchInput, isSearchFocused ? styles.searchInputFocused : {}]}
-              value={search}
-              onChangeText={handleSearch}
-              onFocus={() => setIsSearchFocused(true)}
-              onBlur={() => setIsSearchFocused(false)}
-            />
+            <View style={styles.searchContainer}>
+              <TouchableOpacity onPress={toggleSearchFocus}>
+                <AntDesign name="search1" size={24} color="black" style={styles.icon} />
+              </TouchableOpacity>
+              <TextInput
+                ref={searchInputRef}
+                placeholderTextColor="black"
+                style={[styles.searchInput, isSearchFocused ? styles.searchInputFocused : {}]}
+                value={search}
+                onChangeText={handleSearch}
+                onFocus={() => setIsSearchFocused(true)}
+                onBlur={() => setIsSearchFocused(false)}
+              />
+            </View>
           </View>
           <TouchableOpacity onPress={handleCartPress}>
             <FontAwesome
-              style={{
-                marginTop: 15,
-                marginRight: 10
-              }}
+              style={{ marginRight: 15, marginTop: 10 }}
               name="opencart"
               size={24}
               color="black"
             />
-          </TouchableOpacity>   
-            <LogoIcon/>
+          </TouchableOpacity>
+          <LogoIcon />
         </View>
         <Text style={styles.Title}>Sản phẩm :</Text>
         <FlatList
           data={filteredProducts}
           renderItem={renderItem}
-          keyExtractor={(item) => item.id.toString()}
+          keyExtractor={(item) => item.productId ? item.productId.toString() : Math.random().toString()} // Sử dụng Math.random() làm fallback nếu productId không có
           style={styles.flatList}
           numColumns={numColumns}
         />
@@ -184,6 +174,7 @@ const Home = ({ navigation }) => {
 }
 
 const styles = StyleSheet.create({
+  // Các style của component
   container: {
     flex: 1,
   },
@@ -196,12 +187,12 @@ const styles = StyleSheet.create({
     paddingBottom: 10,
     backgroundColor: '#FFCA09',
     paddingLeft: 10,
-    paddingRight: 40
+    paddingRight: 40,
   },
-  info: {
-    fontSize: 30,
-    paddingLeft: 20,
-    paddingBottom: 10,
+  headerLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginRight: -100,
   },
   Title: {
     marginTop: 10,
@@ -213,7 +204,8 @@ const styles = StyleSheet.create({
   },
   item: {
     width: cardWidth,
-    borderColor: '#000000',
+    borderColor: '#000', 
+    borderWidth: 1,      
     margin: 5,
     backgroundColor: '#fff',
     shadowColor: '#000',
@@ -226,11 +218,13 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingBottom: 30,
     paddingTop: 30,
+    borderRadius: 10, 
   },
   image: {
-    width: cardWidth,
+    width: '100%',
     height: 120,
-    borderRadius: 5,
+    borderRadius: 10, 
+    resizeMode: 'cover', 
     marginBottom: 10,
   },
   imagePlaceholder: {
@@ -259,11 +253,25 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 5,
   },
-  description: {
+  discount: {
+    fontSize: 12,
+    color: 'red',
+    textAlign: 'center',
+  },
+  sold: {
     fontSize: 12,
     color: '#333',
     textAlign: 'center',
-    paddingHorizontal: 10,
+  },
+  category: {
+    fontSize: 12,
+    color: '#333',
+    textAlign: 'center',
+  },
+  enteredDate: {
+    fontSize: 12,
+    color: '#333',
+    textAlign: 'center',
   },
   loader: {
     flex: 1,
@@ -287,18 +295,11 @@ const styles = StyleSheet.create({
     color: 'black',
   },
   searchInputFocused: {
-    borderBottomWidth: 1,
-    borderBottomColor: 'black',
+    borderColor: 'black',
+    borderBottomWidth:1,
   },
   icon: {
-    paddingRight: 1,
-  },
-  profileImage: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    marginTop: 15,
-    marginRight: 10,
+    marginRight: 5,
   },
 });
 

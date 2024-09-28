@@ -29,21 +29,24 @@ const History = ({ navigation }) => {
 
   const fetchOrderHistory = async (email) => {
     try {
-      const response = await axios.get(`http://10.87.29.105:8080/api/orders/user/${email}`);
-      setOrderHistory(response.data);
-
+      const response = await axios.get(`http://10.87.3.218:8080/api/orders/user/${email}`);
+      
+      // Sort the orders by date (assuming there's a date field like 'orderDate')
+      const sortedOrders = response.data.sort((a, b) => new Date(b.orderDate) - new Date(a.orderDate));
+      setOrderHistory(sortedOrders);
+  
       // Fetch details for each order
-      response.data.forEach(order => {
+      sortedOrders.forEach(order => {
         fetchOrderDetails(order.ordersId);
       });
     } catch (error) {
       console.error('Error fetching order history', error);
     }
   };
-
+  
   const fetchOrderDetails = async (ordersId) => {
     try {
-      const response = await axios.get(`http://10.87.29.105:8080/api/orderDetail/order/${ordersId}`);
+      const response = await axios.get(`http://10.87.3.218:8080/api/orderDetail/order/${ordersId}`);
 
       // Assuming response.data contains an array of details
       setOrderDetails(prevDetails => [...prevDetails, ...response.data]); // Append to existing details

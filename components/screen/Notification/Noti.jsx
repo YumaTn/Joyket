@@ -7,7 +7,7 @@ const Noti = () => {
 
     <View style={styles.header}>
         <Text style={styles.info}>
-         Notification:
+         Thông báo:
         </Text>
         <Ionicons style={{marginBottom:10,marginRight:30}} name="notifications-sharp" size={25} color="black" />
     </View>

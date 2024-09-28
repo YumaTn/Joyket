@@ -30,7 +30,7 @@ const Lastest = ({ navigation }) => {
   // Hàm gọi API để lấy sản phẩm
   const fetchProducts = async () => {
     try {
-      const response = await fetch('http://10.87.3.218:8080/api/products/latest');
+      const response = await fetch('http://10.87.3.218:8080/api/products/rated');
       const data = await response.json();
       console.log('Dữ liệu sản phẩm:', data);
       
@@ -45,8 +45,8 @@ const Lastest = ({ navigation }) => {
   };
 
   useEffect(() => {
-    fetchProducts();
     checkLoginStatus();
+    fetchProducts();
   }, []);
 
   // Hàm xử lý tìm kiếm

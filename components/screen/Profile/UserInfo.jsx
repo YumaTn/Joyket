@@ -3,7 +3,6 @@ import { SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, View, Imag
 import SimpleLineIcons from '@expo/vector-icons/SimpleLineIcons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
-
 const UserInfo = ({ navigation }) => {
     const [username, setUsername] = useState('');
     const [userEmail, setUserEmail] = useState('');
@@ -51,6 +50,7 @@ const UserInfo = ({ navigation }) => {
         const userData = await AsyncStorage.getItem('userData');
         const parsedData = userData ? JSON.parse(userData) : null;
         const password = parsedData ? parsedData.password : null;
+        const registerDate = parsedData ? parsedData.registerDate : null; // Retain the registerDate
     
         const updatedUser = {
             userId: userId,
@@ -60,7 +60,10 @@ const UserInfo = ({ navigation }) => {
             address: address,
             gender: genderBoolean,
             image: image,
-            password: password, // Gửi mật khẩu để xác minh
+            password: password,
+            status: true,
+            registerDate, // Keep the original registerDate
+            token, // Keep the original token
         };
     
         console.log('User ID:', userId);
@@ -69,7 +72,7 @@ const UserInfo = ({ navigation }) => {
         if (token && userId) {
             setLoading(true);
             try {
-                const response = await axios.put(`http://10.87.29.105:8080/api/auth/${userId}`, updatedUser, {
+                const response = await axios.put(`http://10.87.3.218:8080/api/auth/${userId}`, updatedUser, {
                     headers: {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${token}`,
@@ -77,7 +80,7 @@ const UserInfo = ({ navigation }) => {
                 });
     
                 if (response.status === 200) {
-                    const updatedUserData = { ...response.data };
+                    const updatedUserData = { ...response.data, registerDate, token }; // Ensure registerDate and token are retained
                     await AsyncStorage.setItem('userData', JSON.stringify(updatedUserData));
                     Alert.alert('Thành công', 'Thông tin cá nhân đã được cập nhật.');
                 } else {
@@ -96,7 +99,7 @@ const UserInfo = ({ navigation }) => {
         } else {
             Alert.alert('Lỗi', 'Người dùng chưa được xác thực.');
         }
-    };
+    };    
     
     return (
         <SafeAreaView style={{ flex: 1 }}>
@@ -115,7 +118,9 @@ const UserInfo = ({ navigation }) => {
                         style={styles.image}
                     />
                 ) : (
-                    <View style={styles.imagePlaceholder} />
+                    <View style={styles.imagePlaceholder}/>    
+                    
+                    
                 )}
                 
                 <View>

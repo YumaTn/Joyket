@@ -20,7 +20,7 @@ const ProductDetail = ({ route, navigation }) => {
         const productsData = await AsyncStorage.getItem('productsData');
         if (productsData) {
           const products = JSON.parse(productsData);
-          const productDetail = products.find(p => p.id === productId);
+          const productDetail = products.find(p => p.productId === productId);
           setProduct(productDetail);
         }
       } catch (error) {
@@ -45,26 +45,26 @@ const ProductDetail = ({ route, navigation }) => {
         if (userData) {
           const parsedData = JSON.parse(userData);
           const email = parsedData.email;
-    
-          const response = await fetch(`http://10.87.29.105:8080/api/favorites/email/${email}`, {
+
+          const response = await fetch(`http://192.168.2.18:8080/api/favorites/email/${email}`, {
             method: 'GET',
             headers: {
               'Content-Type': 'application/json',
               'Authorization': `Bearer ${parsedData.token}`,
             },
           });
-    
+
           if (!response.ok) {
             throw new Error('Error fetching favorites');
           }
-    
+
           const favoritesData = await response.json();
           console.log('Favorites data:', favoritesData); // Debug line
-    
+
           // Kiểm tra nếu productId trong favoritesData có trùng với productId hiện tại không
           const favoriteItem = favoritesData.find(fav => fav.product.productId === productId);
           console.log('Favorite item:', favoriteItem); // Debug line
-    
+
           // Cập nhật trạng thái isFavorite và favoriteId
           if (favoriteItem) {
             setIsFavorite(true);
@@ -90,6 +90,13 @@ const ProductDetail = ({ route, navigation }) => {
     return 'N/A';
   };
 
+  const calculateDiscountPrice = (price, discount) => {
+    if (price && discount) {
+      return price * (1 - discount / 100);
+    }
+    return price;
+  };
+
   const addToCart = async () => {
     try {
       const userData = await AsyncStorage.getItem('userData');
@@ -98,41 +105,46 @@ const ProductDetail = ({ route, navigation }) => {
         navigation.navigate('login');
         return;
       }
-
+  
       const parsedUserData = JSON.parse(userData);
       const token = parsedUserData.token;
       const email = parsedUserData.email;
-
+  
       if (!token || !email) {
         Alert.alert('Error', 'Token hoặc email không hợp lệ. Vui lòng đăng nhập lại.');
         navigation.navigate('login');
         return;
       }
-
-      const cartResponse = await fetch(`http://10.87.29.105:8080/api/cart/user/${email}`, {
+  
+      const cartResponse = await fetch(`http://192.168.2.18:8080/api/cart/user/${email}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
         },
       });
-
+  
       if (!cartResponse.ok) {
         const errorData = await cartResponse.json();
         throw new Error(errorData.message || 'Không thể lấy thông tin giỏ hàng.');
       }
-
+  
       const cartData = await cartResponse.json();
       const cartId = cartData.cartId;
-
+  
+      // Kiểm tra xem sản phẩm có discount không
+      const priceToSend = product.discount > 0
+        ? calculateDiscountPrice(product.price, product.discount)
+        : product.price;
+  
       const cartDetail = {
         quantity: 1,
-        price: product.price,
+        price: priceToSend,  // Gửi giá đã giảm nếu có, ngược lại là giá bình thường
         product: { productId: productId },
         cart: { cartId: cartId },
       };
-
-      const postDetailResponse = await fetch(`http://10.87.29.105:8080/api/cartDetail`, {
+  
+      const postDetailResponse = await fetch(`http://192.168.2.18:8080/api/cartDetail`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -140,24 +152,24 @@ const ProductDetail = ({ route, navigation }) => {
         },
         body: JSON.stringify(cartDetail),
       });
-
+  
       const postDetailData = await postDetailResponse.json();
-
+  
       if (postDetailResponse.ok) {
         Alert.alert('Success', 'Thêm sản phẩm vào giỏ hàng thành công!');
-        const allDetailsResponse = await fetch(`http://10.87.29.105:8080/api/cartDetail/cart/${cartId}`, {
+        const allDetailsResponse = await fetch(`http://192.168.2.18:8080/api/cartDetail/cart/${cartId}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`,
           },
         });
-
+  
         if (!allDetailsResponse.ok) {
           const errorData = await allDetailsResponse.json();
           throw new Error(errorData.message || 'Không thể lấy chi tiết giỏ hàng.');
         }
-
+  
         const allDetailsData = await allDetailsResponse.json();
         await AsyncStorage.setItem('cartLength', JSON.stringify(allDetailsData.length));
       } else {
@@ -167,7 +179,7 @@ const ProductDetail = ({ route, navigation }) => {
       console.error('Error adding product to cart:', error);
       Alert.alert('Error', `Đã xảy ra lỗi: ${error.message}`);
     }
-  };
+  };  
 
   const addToFavorites = async () => {
     try {
@@ -177,26 +189,26 @@ const ProductDetail = ({ route, navigation }) => {
         navigation.navigate('login');
         return;
       }
-  
+
       const parsedUserData = JSON.parse(userData);
       const token = parsedUserData.token;
       const email = parsedUserData.email;
       const userId = parsedUserData.userId; // Assuming userId is stored here
-  
+
       if (!token || !email || !userId) {
         Alert.alert('Error', 'Token, email hoặc userId không hợp lệ. Vui lòng đăng nhập lại.');
         navigation.navigate('login');
         return;
       }
-  
+
       // Tạo đối tượng yêu thích
       const favoriteDetail = {
         user: { userId: userId }, // Cấu trúc đối tượng cho người dùng
         product: { productId: productId }, // Cấu trúc đối tượng cho sản phẩm
       };
-  
+
       // Gửi yêu cầu thêm sản phẩm vào yêu thích
-      const favoriteResponse = await fetch(`http://10.87.29.105:8080/api/favorites/email`, {
+      const favoriteResponse = await fetch(`http://192.168.2.18:8080/api/favorites/email`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -204,9 +216,9 @@ const ProductDetail = ({ route, navigation }) => {
         },
         body: JSON.stringify(favoriteDetail),
       });
-  
+
       const favoriteData = await favoriteResponse.json();
-  
+
       if (favoriteResponse.ok) {
         Alert.alert('Success', 'Thêm sản phẩm vào danh sách yêu thích thành công!');
         setIsFavorite(true); // Cập nhật trạng thái ngay lập tức
@@ -219,7 +231,7 @@ const ProductDetail = ({ route, navigation }) => {
       Alert.alert('Error', `Đã xảy ra lỗi: ${error.message}`);
     }
   };
-  
+
   const removeFromFavorites = async () => {
     try {
       const userData = await AsyncStorage.getItem('userData');
@@ -228,20 +240,20 @@ const ProductDetail = ({ route, navigation }) => {
         navigation.navigate('login');
         return;
       }
-  
+
       const parsedUserData = JSON.parse(userData);
       const token = parsedUserData.token;
-  
-      const response = await fetch(`http://10.87.29.105:8080/api/favorites/${favoriteId}`, {
+
+      const response = await fetch(`http://192.168.2.18:8080/api/favorites/${favoriteId}`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
         },
       });
-  
+
       if (response.ok) {
-        setIsFavorite(false); 
+        setIsFavorite(false);
         setFavoriteId(null); // Reset favoriteId
       } else {
         const errorData = await response.json();
@@ -252,7 +264,7 @@ const ProductDetail = ({ route, navigation }) => {
       Alert.alert('Error', `Đã xảy ra lỗi: ${error.message}`);
     }
   };
-  
+
 
   return (
     <View style={styles.container}>
@@ -308,6 +320,11 @@ const ProductDetail = ({ route, navigation }) => {
                 </TouchableOpacity>
               </View>
             </View>
+            {product.discount>0 && (
+                <Text style={styles.discountPrice}>
+                  Giảm giá: {formatPrice(calculateDiscountPrice(product.price, product.discount))} VNĐ
+                </Text>
+              )}
             <Text style={styles.DescriptionTitle}>Mô tả:</Text>
             <Text style={styles.description}>{product.description}</Text>
           </>
@@ -404,6 +421,11 @@ const styles = StyleSheet.create({
   },
   rightHeader: {
     flexDirection: 'row',
+  },
+  discountPrice: {
+    fontSize: 16,
+    color: 'red',
+    marginLeft: 10,
   },
 });
 

@@ -10,7 +10,9 @@ import ProductDetail from './components/screen/Home/ProductDetail';
 import Cart from './components/Cart/Cart';
 import Checkout from './components/Cart/Checkout';
 import HistoryTrans from './components/History/HistoryTrans';
-
+import SignUp from './components/screen/Login/SignUp';
+import ForgotPassword from './components/screen/Login/ForgotPassword';
+import Categorynavigation from './components/navigation/Categorynavigation'
 const Stack = createStackNavigator();
 
 export default function App() {
@@ -22,7 +24,6 @@ export default function App() {
           headerShown: false,
         }}
       >
-        
         <Stack.Screen
           name="PlashScreen"
           component={PlashScreen} />
@@ -47,6 +48,13 @@ export default function App() {
           <Stack.Screen
           name="History"
           component={HistoryTrans} />
+          <Stack.Screen
+          name="SignUp"
+          component={SignUp} />
+          <Stack.Screen
+          name="forgotpassword"
+          component={ForgotPassword} />
+  
       </Stack.Navigator>
     </NavigationContainer>
   );

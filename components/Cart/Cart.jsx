@@ -4,10 +4,10 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
-const API_URL_CART = 'http://10.87.29.105:8080/api/cart/user';
-const API_URL_CART_DETAIL = 'http://10.87.29.105:8080/api/cartDetail/cart';
-const API_URL_PRODUCTS = 'http://10.87.29.105:8080/api/products';
-const API_URL_UPDATE_CART_DETAIL = 'http://10.87.29.105:8080/api/cartDetail'; 
+const API_URL_CART = 'http://10.87.3.218:8080/api/cart/user';
+const API_URL_CART_DETAIL = 'http://10.87.3.218:8080/api/cartDetail/cart';
+const API_URL_PRODUCTS = 'http://10.87.3.218:8080/api/products';
+const API_URL_UPDATE_CART_DETAIL = 'http://10.87.3.218:8080/api/cartDetail'; 
 
 const Cart = ({ navigation }) => {
   const [email, setEmail] = useState(null); 

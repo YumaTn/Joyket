@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert, Image, TouchableWithoutFeedback, Keyboard } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert, Image, TouchableWithoutFeedback, Keyboard, KeyboardAvoidingView } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
+import { LogoLoginIcon } from '../../../assets/icon';
 
 const Login = ({ navigation }) => {
     const [email, setEmail] = useState('');
@@ -9,10 +10,10 @@ const Login = ({ navigation }) => {
 
     const fetchUserId = async (userEmail) => {
         try {
-            const response = await axios.get(`http://10.87.29.105:8080/api/auth/email/${userEmail}`);
+            const response = await axios.get(`http://10.87.3.218:8080/api/auth/email/${userEmail}`);
             const { userId } = response.data; // Giả sử API trả về userId
             console.log('User ID:', userId);
-            
+
             // Lưu userId vào AsyncStorage, đảm bảo là chuỗi
             await AsyncStorage.setItem('userId', JSON.stringify(userId));
         } catch (error) {
@@ -20,22 +21,22 @@ const Login = ({ navigation }) => {
             Alert.alert('Lỗi', 'Không thể lấy thông tin người dùng. Vui lòng thử lại sau.');
         }
     };
-    
+
 
     const handleLogin = async () => {
         try {
-            const response = await axios.post('http://10.87.29.105:8080/api/auth/signin', {
+            const response = await axios.post('http://10.87.3.218:8080/api/auth/signin', {
                 email,
                 password,
             });
-    
+
             console.log('API response:', response.data);
-    
+
             const { name, phone, address, gender, registerDate, token, image, status, id } = response.data;
-    
+
             // Lấy userId từ API
-            const userIdResponse = await axios.get(`http://10.87.29.105:8080/api/auth/email/${email}`);
-            const userId = userIdResponse.data.userId; 
+            const userIdResponse = await axios.get(`http://10.87.3.218:8080/api/auth/email/${email}`);
+            const userId = userIdResponse.data.userId;
             console.log('User ID:', userId);
             console.log('Password:', password);
             // Lưu thông tin người dùng vào AsyncStorage
@@ -53,9 +54,9 @@ const Login = ({ navigation }) => {
                 userId,
                 password // Lưu mật khẩu (không khuyến khích)
             }));
-    
-            navigation.replace('Navigation'); 
-    
+
+            navigation.replace('Navigation');
+
         } catch (error) {
             if (error.response) {
                 console.log('Server responded with status:', error.response.status);
@@ -70,15 +71,14 @@ const Login = ({ navigation }) => {
             }
         }
     };
-    
-    
+
+
     return (
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-            <View style={styles.container}>
-                <Image style={styles.image1} source={require('../../../assets/Line.png')} />
-                <Image style={styles.image2} source={require('../../../assets/Line2.png')} />
+            <KeyboardAvoidingView style={styles.container}>
+                <Image style={styles.image1} source={require('../../../assets/backgroundlogin.png')} />
                 <View style={styles.textContainer}>
-                    <Text style={styles.text}>Joyket</Text>
+                    <LogoLoginIcon />
                 </View>
                 <View style={styles.textContainer2}>
                     <Text style={styles.text2}>Đăng Nhập</Text>
@@ -89,7 +89,7 @@ const Login = ({ navigation }) => {
                         onChangeText={setEmail}
                         value={email}
                         placeholder="Email"
-                        placeholderTextColor="black"
+                        placeholderTextColor="#CCCCCC"
                     />
                 </View>
                 <View style={styles.inputContainer2}>
@@ -98,18 +98,21 @@ const Login = ({ navigation }) => {
                         onChangeText={setPassword}
                         value={password}
                         placeholder="Mật khẩu"
-                        placeholderTextColor="black"
+                        placeholderTextColor="#CCCCCC"
                         secureTextEntry={true}
                     />
                 </View>
+                <TouchableOpacity style={styles.forgotpassword} onPress={() => navigation.navigate('forgotpassword')}>
+                    <Text>Quên mật khẩu?</Text>
+                </TouchableOpacity>
                 <TouchableOpacity style={styles.button} onPress={handleLogin}>
-                    <Text>Đăng Nhập</Text>
+                    <Text style={styles.buttonText}>Đăng Nhập</Text>
                 </TouchableOpacity>
                 <Image source={require('../../../assets/Line 4.png')} />
                 <TouchableOpacity style={styles.Signup} onPress={() => navigation.navigate('SignUp')}>
                     <Text style={styles.SignuUpText}>Bạn chưa có tài khoản?</Text>
                 </TouchableOpacity>
-            </View>
+            </KeyboardAvoidingView>
         </TouchableWithoutFeedback>
     );
 };
@@ -127,7 +130,7 @@ const styles = StyleSheet.create({
         left: '15%',
     },
     image1: {
-        alignSelf: 'flex-start',
+        marginTop: 120
     },
     image2: {
         alignSelf: 'flex-end',
@@ -143,8 +146,9 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     text2: {
-        color: 'white',
+        color: 'black',
         fontSize: 30,
+        fontWeight: 'bold'
     },
     inputContainer: {
         position: 'absolute',
@@ -167,21 +171,37 @@ const styles = StyleSheet.create({
     },
     button: {
         position: 'absolute',
-        top: '58%',
-        width: '30%',
-        padding: 15,
-        backgroundColor: 'orange',
-        borderRadius: 40,
+        top: '62%',
+        width: '20',
+        paddingTop: 10,
+        paddingBottom: 10,
+        paddingLeft: 110,
+        paddingRight: 110,
+        backgroundColor: 'black',
+        borderRadius: 10,
         alignItems: 'center',
     },
     Signup: {
         position: 'absolute',
         top: '70%',
-        lineHeight: 1,
+        alignItems: 'center',
+        borderTopWidth: 1,
+        borderColor: 'black',
+        paddingTop: 20,
+    },
+    forgotpassword: {
+        position: 'absolute',
+        top: '53%',
+        borderColor: 'black',
+        paddingTop: 20,
+        right:60,
     },
     SignuUpText: {
-        color: 'white',
+        color: 'black',
     },
+    buttonText: {
+        color: 'white'
+    }
 });
 
 export default Login;

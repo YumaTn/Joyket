@@ -6,33 +6,39 @@ import Profile from '../screen/Profile/Profile.jsx';
 import SCREENS from './index.jsx';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Favorite from '../screen/Favorite/Favorite.jsx';
+import { TouchableOpacity } from 'react-native-gesture-handler';
+import Ionicons from '@expo/vector-icons/Ionicons';
+import { useNavigation } from '@react-navigation/native';
+import Categorynavigation from './Categorynavigation.jsx';
 
 const Tab = createBottomTabNavigator();
-const Navigation = () => {
+
+const Navigation = () => { 
   return (
     <Tab.Navigator
-    screenOptions={{
-      tabBarLabelStyle: { color: 'black' }, 
-      headerShown:false,
-      tabBarStyle: {
-        position: 'absolute',
-        borderTopLeftRadius: 15,
-        borderTopRightRadius: 15,
-        backgroundColor: '#FFCA09',
-        shadowColor: '#000',
-        shadowOffset: {
-          width: 0,
-          height: 2,
+      screenOptions={{
+        tabBarLabelStyle: { color: 'black' },
+        headerShown:false,
+        tabBarStyle: {
+          position: 'absolute',
+          borderTopLeftRadius: 15,
+          borderTopRightRadius: 15,
+          backgroundColor: '#FFCA09',
+          shadowColor: '#000',
+          paddingTop:5,
+          shadowOffset: {
+            width: 0,
+            height: 2,
+          },
+          shadowOpacity: 0.25,
+          shadowRadius: 3.84,
+          elevation: 5,
         },
-        shadowOpacity: 0.25,
-        shadowRadius: 3.84,
-        elevation: 5,
-      },
-    }}
+      }}
     >
       <Tab.Screen
         name={SCREENS.HOME}
-        component={Home}
+        component={Categorynavigation}
         options={{
           title: '',
           tabBarIcon: ({ focused }) => (
@@ -73,6 +79,5 @@ const Navigation = () => {
     </Tab.Navigator>
   );
 };
- 
-export default Navigation;
 
+export default Navigation;
