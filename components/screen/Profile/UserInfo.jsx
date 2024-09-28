@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, View, Image, ScrollView, Alert, ActivityIndicator } from 'react-native';
+import { SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, View, Image, ScrollView, ActivityIndicator, Alert } from 'react-native';
 import SimpleLineIcons from '@expo/vector-icons/SimpleLineIcons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
+
 const UserInfo = ({ navigation }) => {
     const [username, setUsername] = useState('');
     const [userEmail, setUserEmail] = useState('');
@@ -13,6 +14,10 @@ const UserInfo = ({ navigation }) => {
     const [loading, setLoading] = useState(false);
     const [userId, setUserId] = useState(null);
     const [token, setToken] = useState(null);
+
+    // State theo dõi lỗi
+    const [nameError, setNameError] = useState('');
+    const [phoneError, setPhoneError] = useState('');
 
     useEffect(() => {
         const loadData = async () => {
@@ -37,21 +42,40 @@ const UserInfo = ({ navigation }) => {
         loadData();
     }, []);
 
-    // Hàm xử lý cập nhật thông tin người dùng
     const handleUpdate = async () => {
-        const genderBoolean = gender === 'male';
-    
-        if (!userId) {
-            Alert.alert('Lỗi', 'Không tìm thấy ID người dùng.');
+        let valid = true; 
+        setNameError(''); 
+        setPhoneError('');
+
+        if (username.length < 2) {
+            setNameError('Tên phải có ít nhất 2 ký tự.');
+            valid = false;
+        }
+
+        const phonePattern = /^[0-9]{10}$/;
+        if (!phonePattern.test(phone)) {
+            setPhoneError('Số điện thoại phải là 10 chữ số.');
+            valid = false;
+        }
+
+        if (!valid) {
+            console.log("Form validation failed");
             return;
         }
-    
-        // Lấy mật khẩu từ AsyncStorage
+
+        const genderBoolean = gender === 'male';
+
+        if (!userId) {
+            setNameError('Không tìm thấy ID người dùng.');
+            console.log("User ID not found");
+            return;
+        }
+
         const userData = await AsyncStorage.getItem('userData');
         const parsedData = userData ? JSON.parse(userData) : null;
         const password = parsedData ? parsedData.password : null;
-        const registerDate = parsedData ? parsedData.registerDate : null; // Retain the registerDate
-    
+        const registerDate = parsedData ? parsedData.registerDate : null;
+
         const updatedUser = {
             userId: userId,
             name: username,
@@ -62,13 +86,12 @@ const UserInfo = ({ navigation }) => {
             image: image,
             password: password,
             status: true,
-            registerDate, // Keep the original registerDate
-            token, // Keep the original token
+            registerDate,
+            token,
         };
-    
-        console.log('User ID:', userId);
-        console.log('Updated User:', updatedUser);
-    
+
+        console.log("Updated User Object: ", updatedUser); // Log đối tượng người dùng đã cập nhật
+
         if (token && userId) {
             setLoading(true);
             try {
@@ -78,29 +101,32 @@ const UserInfo = ({ navigation }) => {
                         'Authorization': `Bearer ${token}`,
                     },
                 });
-    
+
+                console.log("Response from API: ", response.data); // Log phản hồi từ API
+
                 if (response.status === 200) {
-                    const updatedUserData = { ...response.data, registerDate, token }; // Ensure registerDate and token are retained
+                    const updatedUserData = { ...response.data, registerDate, token };
+                    Alert.alert("Thông tin cá nhân đã được cập nhật.");
                     await AsyncStorage.setItem('userData', JSON.stringify(updatedUserData));
-                    Alert.alert('Thành công', 'Thông tin cá nhân đã được cập nhật.');
                 } else {
-                    Alert.alert('Lỗi', 'Đã xảy ra lỗi khi cập nhật thông tin.');
+                    setNameError('Đã xảy ra lỗi khi cập nhật thông tin.');
                 }
             } catch (error) {
                 console.error('Error updating user info', error);
                 if (error.response && error.response.data && error.response.data.message) {
-                    Alert.alert('Lỗi', error.response.data.message);
+                    setNameError(error.response.data.message);
                 } else {
-                    Alert.alert('Lỗi', 'Đã xảy ra lỗi khi cập nhật thông tin.');
+                    setNameError('Đã xảy ra lỗi khi cập nhật thông tin.');
                 }
             } finally {
                 setLoading(false);
             }
         } else {
-            Alert.alert('Lỗi', 'Người dùng chưa được xác thực.');
+            setNameError('Người dùng chưa được xác thực.');
+            console.log("User not authenticated");
         }
-    };    
-    
+    };
+
     return (
         <SafeAreaView style={{ flex: 1 }}>
             <TouchableOpacity onPress={() => navigation.goBack()}>
@@ -119,8 +145,6 @@ const UserInfo = ({ navigation }) => {
                     />
                 ) : (
                     <View style={styles.imagePlaceholder}/>    
-                    
-                    
                 )}
                 
                 <View>
@@ -139,11 +163,15 @@ const UserInfo = ({ navigation }) => {
                     <Text style={styles.title}>Name<Text style={styles.iconMust}>*</Text></Text>
                     <TextInput
                         style={styles.input}
-                        onChangeText={setUsername}
+                        onChangeText={(text) => {
+                            setUsername(text);
+                            setNameError('');
+                        }}
                         value={username}
                         placeholder="Name"
                         placeholderTextColor="#CCCCCC"
                     />
+                    {nameError ? <Text style={styles.errorText}>{nameError}</Text> : null}
                 </View>
                 <View>
                     <Text style={styles.title}>Address<Text style={styles.iconMust}>*</Text></Text>
@@ -159,13 +187,17 @@ const UserInfo = ({ navigation }) => {
                     <Text style={styles.title}>Phone number<Text style={styles.iconMust}>*</Text></Text>
                     <TextInput
                         style={styles.input}
-                        onChangeText={setPhone}
+                        onChangeText={(text) => {
+                            setPhone(text);
+                            setPhoneError('');
+                        }}
                         value={phone}
                         placeholder="Phone number"
                         placeholderTextColor="#CCCCCC"
                         keyboardType="phone-pad"
-                        maxLength={10} // Giới hạn nhập tối đa 10 chữ số
+                        maxLength={10}
                     />
+                    {phoneError ? <Text style={styles.errorText}>{phoneError}</Text> : null}
                 </View>
                 <View>
                     <Text style={styles.title}>Gender<Text style={styles.iconMust}>*</Text></Text>
@@ -287,6 +319,10 @@ const styles = StyleSheet.create({
         borderRadius: 25,
         marginLeft: 150,
         backgroundColor: '#CCCCCC',
+    },
+    errorText: {
+        color: 'red',
+        fontSize: 12,
     },
 });
 

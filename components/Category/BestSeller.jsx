@@ -32,7 +32,6 @@ const Lastest = ({ navigation }) => {
     try {
       const response = await fetch('http://10.87.3.218:8080/api/products/bestseller');
       const data = await response.json();
-      console.log('Dữ liệu sản phẩm:', data);
       
       setFilteredProducts(data); // Giả định rằng API trả về danh sách sản phẩm
       await AsyncStorage.setItem('productsData', JSON.stringify(data)); // Lưu sản phẩm vào AsyncStorage
