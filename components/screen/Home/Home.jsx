@@ -24,7 +24,7 @@ const Home = ({ navigation }) => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const response = await fetch('http://10.87.29.105:8080/api/products');
+        const response = await fetch('http://192.168.1.16:8080/api/products');
         const data = await response.json();
 
         const productsData = data.map(product => ({

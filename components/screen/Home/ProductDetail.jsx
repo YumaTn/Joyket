@@ -46,7 +46,7 @@ const ProductDetail = ({ route, navigation }) => {
           const parsedData = JSON.parse(userData);
           const email = parsedData.email;
     
-          const response = await fetch(`http://10.87.29.105:8080/api/favorites/email/${email}`, {
+          const response = await fetch(`http://192.168.1.16:8080/api/favorites/email/${email}`, {
             method: 'GET',
             headers: {
               'Content-Type': 'application/json',
@@ -109,7 +109,7 @@ const ProductDetail = ({ route, navigation }) => {
         return;
       }
 
-      const cartResponse = await fetch(`http://10.87.29.105:8080/api/cart/user/${email}`, {
+      const cartResponse = await fetch(`http://192.168.1.16:8080/api/cart/user/${email}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -132,7 +132,7 @@ const ProductDetail = ({ route, navigation }) => {
         cart: { cartId: cartId },
       };
 
-      const postDetailResponse = await fetch(`http://10.87.29.105:8080/api/cartDetail`, {
+      const postDetailResponse = await fetch(`http://192.168.1.16:8080/api/cartDetail`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -145,7 +145,7 @@ const ProductDetail = ({ route, navigation }) => {
 
       if (postDetailResponse.ok) {
         Alert.alert('Success', 'Thêm sản phẩm vào giỏ hàng thành công!');
-        const allDetailsResponse = await fetch(`http://10.87.29.105:8080/api/cartDetail/cart/${cartId}`, {
+        const allDetailsResponse = await fetch(`http://192.168.1.16:8080/api/cartDetail/cart/${cartId}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -196,7 +196,7 @@ const ProductDetail = ({ route, navigation }) => {
       };
   
       // Gửi yêu cầu thêm sản phẩm vào yêu thích
-      const favoriteResponse = await fetch(`http://10.87.29.105:8080/api/favorites/email`, {
+      const favoriteResponse = await fetch(`http://192.168.1.16:8080/api/favorites/email`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -232,7 +232,7 @@ const ProductDetail = ({ route, navigation }) => {
       const parsedUserData = JSON.parse(userData);
       const token = parsedUserData.token;
   
-      const response = await fetch(`http://10.87.29.105:8080/api/favorites/${favoriteId}`, {
+      const response = await fetch(`http://192.168.1.16:8080/api/favorites/${favoriteId}`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',

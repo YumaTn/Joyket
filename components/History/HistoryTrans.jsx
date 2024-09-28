@@ -29,7 +29,7 @@ const History = ({ navigation }) => {
 
   const fetchOrderHistory = async (email) => {
     try {
-      const response = await axios.get(`http://10.87.29.105:8080/api/orders/user/${email}`);
+      const response = await axios.get(`http://192.168.1.16:8080/api/orders/user/${email}`);
       setOrderHistory(response.data);
 
       // Fetch details for each order
@@ -43,7 +43,7 @@ const History = ({ navigation }) => {
 
   const fetchOrderDetails = async (ordersId) => {
     try {
-      const response = await axios.get(`http://10.87.29.105:8080/api/orderDetail/order/${ordersId}`);
+      const response = await axios.get(`http://192.168.1.16:8080/api/orderDetail/order/${ordersId}`);
 
       // Assuming response.data contains an array of details
       setOrderDetails(prevDetails => [...prevDetails, ...response.data]); // Append to existing details

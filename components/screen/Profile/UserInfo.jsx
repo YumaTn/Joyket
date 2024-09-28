@@ -69,7 +69,7 @@ const UserInfo = ({ navigation }) => {
         if (token && userId) {
             setLoading(true);
             try {
-                const response = await axios.put(`http://10.87.29.105:8080/api/auth/${userId}`, updatedUser, {
+                const response = await axios.put(`http://192.168.1.16:8080/api/auth/${userId}`, updatedUser, {
                     headers: {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${token}`,
