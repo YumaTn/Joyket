@@ -13,11 +13,17 @@ import HistoryTrans from './components/History/HistoryTrans';
 import SignUp from './components/screen/Login/SignUp';
 import ForgotPassword from './components/screen/Login/ForgotPassword';
 import Categorynavigation from './components/navigation/Categorynavigation'
+import ResetPassword from './components/screen/Login/ResetPassword';
+import Phone from './components/Category/Phone';
+import Laptop from './components/Category/Laptop';
+import Tivi from './components/Category/Tivi';
+import Device from './components/Category/Device';
+import Clock from './components/Category/Clock';
 const Stack = createStackNavigator();
 
 export default function App() {
   return (
-    <NavigationContainer> 
+    <NavigationContainer>
       <Stack.Navigator
         style={styles.container}
         screenOptions={{
@@ -27,34 +33,51 @@ export default function App() {
         <Stack.Screen
           name="PlashScreen"
           component={PlashScreen} />
-         <Stack.Screen
+        <Stack.Screen
           name="login"
           component={Login} />
         <Stack.Screen
           name="Navigation"
           component={Navigation} />
-          <Stack.Screen
+        <Stack.Screen
           name="ProductDetail"
           component={ProductDetail} />
-          <Stack.Screen
+        <Stack.Screen
           name="Info"
           component={UserInfo} />
-          <Stack.Screen
+        <Stack.Screen
           name="Cart"
           component={Cart} />
-          <Stack.Screen
+        <Stack.Screen
           name="Checkout"
           component={Checkout} />
-          <Stack.Screen
+        <Stack.Screen
           name="History"
           component={HistoryTrans} />
-          <Stack.Screen
+        <Stack.Screen
           name="SignUp"
           component={SignUp} />
-          <Stack.Screen
+        <Stack.Screen
           name="forgotpassword"
           component={ForgotPassword} />
-  
+        <Stack.Screen
+          name="ResetPassword"
+          component={ResetPassword} />
+          <Stack.Screen
+          name="Phone"
+          component={Phone} />
+          <Stack.Screen
+          name="Laptop"
+          component={Laptop} />
+          <Stack.Screen
+          name="Tivi"
+          component={Tivi} />
+          <Stack.Screen
+          name="Device"
+          component={Device} />
+          <Stack.Screen
+          name="Clock"
+          component={Clock} />
       </Stack.Navigator>
     </NavigationContainer>
   );

@@ -113,9 +113,9 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         marginBottom: 5,
-        paddingTop: 30,
+        paddingTop: 40,
         backgroundColor: '#FFCA09',
-        paddingBottom:5,
+        paddingBottom:10,
     },
     info: {
         fontSize: 20,

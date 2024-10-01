@@ -4,10 +4,10 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
-const API_URL_CART = 'http://10.87.3.218:8080/api/cart/user';
-const API_URL_CART_DETAIL = 'http://10.87.3.218:8080/api/cartDetail/cart';
-const API_URL_PRODUCTS = 'http://10.87.3.218:8080/api/products';
-const API_URL_UPDATE_CART_DETAIL = 'http://10.87.3.218:8080/api/cartDetail'; 
+const API_URL_CART = 'http://192.168.2.18:8080/api/cart/user';
+const API_URL_CART_DETAIL = 'http://192.168.2.18:8080/api/cartDetail/cart';
+const API_URL_PRODUCTS = 'http://192.168.2.18:8080/api/products';
+const API_URL_UPDATE_CART_DETAIL = 'http://192.168.2.18:8080/api/cartDetail'; 
 
 const Cart = ({ navigation }) => {
   const [email, setEmail] = useState(null); 
@@ -135,10 +135,16 @@ const Cart = ({ navigation }) => {
   };
 
   const toggleSelectItem = (id) => {
-    setSelectedItems(prev => ({
-      ...prev,
-      [id]: !prev[id],
-    }));
+    setSelectedItems(prev => {
+      const newSelectedItems = {
+        ...prev,
+        [id]: !prev[id],
+      };
+      
+      // Tính toán lại tổng giá khi thay đổi trạng thái chọn
+      recalculateAmounts(newSelectedItems);
+      return newSelectedItems;
+    });
   };
 
   if (loading) return <ActivityIndicator size="large" color="#0000ff" />;
@@ -241,7 +247,9 @@ const Cart = ({ navigation }) => {
         })}
         <View style={styles.summaryFooter}>
           <Text style={styles.summaryFooterText}>Giảm giá: {discount.toLocaleString()} VND</Text>
-          <Text style={styles.summaryFooterText}>Tổng: {amount.toLocaleString()} VND</Text>
+          <Text style={styles.summaryFooterText}>
+  Tổng: {selectedCartItems.length > 0 ? amount.toLocaleString() : '0'} VND
+          </Text>
         </View>
         <TouchableOpacity
           style={[styles.paymentButton, selectedCartItems.length === 0 && styles.paymentButtonDisabled]}
@@ -266,7 +274,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 5,
-    paddingTop: 30,
+    paddingTop: 50,
     paddingBottom: 10,
     backgroundColor: '#FFCA09',
     paddingLeft: 10,

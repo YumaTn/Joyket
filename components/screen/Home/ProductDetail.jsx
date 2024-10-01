@@ -46,7 +46,7 @@ const ProductDetail = ({ route, navigation }) => {
           const parsedData = JSON.parse(userData);
           const email = parsedData.email;
 
-          const response = await fetch(`http://10.87.3.218:8080/api/favorites/email/${email}`, {
+          const response = await fetch(`http://192.168.2.18:8080/api/favorites/email/${email}`, {
             method: 'GET',
             headers: {
               'Content-Type': 'application/json',
@@ -62,8 +62,6 @@ const ProductDetail = ({ route, navigation }) => {
 
           // Kiểm tra nếu productId trong favoritesData có trùng với productId hiện tại không
           const favoriteItem = favoritesData.find(fav => fav.product.productId === productId);
-          console.log('Favorite item:', favoriteItem); // Debug line
-
           // Cập nhật trạng thái isFavorite và favoriteId
           if (favoriteItem) {
             setIsFavorite(true);
@@ -115,7 +113,7 @@ const ProductDetail = ({ route, navigation }) => {
         return;
       }
   
-      const cartResponse = await fetch(`http://10.87.3.218:8080/api/cart/user/${email}`, {
+      const cartResponse = await fetch(`http://192.168.2.18:8080/api/cart/user/${email}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -143,7 +141,7 @@ const ProductDetail = ({ route, navigation }) => {
         cart: { cartId: cartId },
       };
   
-      const postDetailResponse = await fetch(`http://10.87.3.218:8080/api/cartDetail`, {
+      const postDetailResponse = await fetch(`http://192.168.2.18:8080/api/cartDetail`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -156,7 +154,7 @@ const ProductDetail = ({ route, navigation }) => {
   
       if (postDetailResponse.ok) {
         Alert.alert('Success', 'Thêm sản phẩm vào giỏ hàng thành công!');
-        const allDetailsResponse = await fetch(`http://10.87.3.218:8080/api/cartDetail/cart/${cartId}`, {
+        const allDetailsResponse = await fetch(`http://192.168.2.18:8080/api/cartDetail/cart/${cartId}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -207,7 +205,7 @@ const ProductDetail = ({ route, navigation }) => {
       };
 
       // Gửi yêu cầu thêm sản phẩm vào yêu thích
-      const favoriteResponse = await fetch(`http://10.87.3.218:8080/api/favorites/email`, {
+      const favoriteResponse = await fetch(`http://192.168.2.18:8080/api/favorites/email`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -243,7 +241,7 @@ const ProductDetail = ({ route, navigation }) => {
       const parsedUserData = JSON.parse(userData);
       const token = parsedUserData.token;
 
-      const response = await fetch(`http://10.87.3.218:8080/api/favorites/${favoriteId}`, {
+      const response = await fetch(`http://192.168.2.18:8080/api/favorites/${favoriteId}`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
@@ -293,7 +291,7 @@ const ProductDetail = ({ route, navigation }) => {
             <Text style={styles.title}>{product.name}</Text>
             <View style={styles.priceAndCartContainer}>
               <Text style={styles.PriceTitle}>
-                Giá: <Text style={styles.price}>{formatPrice(product.price)} VNĐ</Text>
+              <Text style={styles.price}>{formatPrice(product.price)} VNĐ</Text>
               </Text>
               <View style={styles.FCartContainer}>
                 <TouchableOpacity
@@ -321,10 +319,15 @@ const ProductDetail = ({ route, navigation }) => {
             </View>
             {product.discount>0 && (
                 <Text style={styles.discountPrice}>
-                  Giảm giá: {formatPrice(calculateDiscountPrice(product.price, product.discount))} VNĐ
+                {formatPrice(calculateDiscountPrice(product.price, product.discount))} VNĐ
                 </Text>
               )}
-            <Text style={styles.DescriptionTitle}>Mô tả:</Text>
+            <Text style={styles.extraInfo}>
+            Ngày nhập: <Text>{product.enteredDate}</Text>
+          </Text>
+          <Text style={styles.extraInfo}>
+            Đã bán: <Text>{product.sold}</Text>
+          </Text>
             <Text style={styles.description}>{product.description}</Text>
           </>
         ) : (
@@ -343,7 +346,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginBottom: 5,
-    paddingTop: 20,
+    paddingTop: 30,
     paddingBottom: 10,
     backgroundColor: '#FFCA09',
   },
@@ -375,6 +378,7 @@ const styles = StyleSheet.create({
   description: {
     fontSize: 16,
     marginLeft: 10,
+    color:"gray"
   },
   titleContainer: {
     flexDirection: 'row',
@@ -420,11 +424,17 @@ const styles = StyleSheet.create({
   },
   rightHeader: {
     flexDirection: 'row',
+    marginRight:10
   },
   discountPrice: {
     fontSize: 16,
     color: 'red',
     marginLeft: 10,
+  },
+  extraInfo: {
+    fontSize: 16,
+    marginLeft: 10,
+    marginTop: 5,
   },
 });
 

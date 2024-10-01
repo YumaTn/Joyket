@@ -6,12 +6,17 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { LogoIcon } from '../../assets/icon';
 import { ActivityIndicator } from 'react-native-paper';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
+import Phone1 from '../../assets/phone.webp';
+import Laptop1 from '../../assets/Laptop.webp';
+import Device1 from '../../assets/Device.jpg'
+import Clock1 from '../../assets/Clock.jpeg'
+import Tivi1 from '../../assets/Tivi.webp'
 const { width } = Dimensions.get('window');
 const numColumns = 2;
 const cardWidth = (width - (numColumns + 1) * 10) / numColumns;
 
-const Lastest = ({ navigation }) => {
+const Phone = ({ navigation,route }) => {
+  const {categoryId} =route.params;
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
@@ -30,11 +35,14 @@ const Lastest = ({ navigation }) => {
   // Hàm gọi API để lấy sản phẩm
   const fetchProducts = async () => {
     try {
-      const response = await fetch('http://192.168.2.18:8080/api/products/rated');
+      const response = await fetch('http://192.168.2.18:8080/api/products'); 
       const data = await response.json();
+  
+      // Lọc sản phẩm theo categoryId
+      const filtered = data.filter(item => item.category.categoryId === categoryId);
       
-      setFilteredProducts(data); // Giả định rằng API trả về danh sách sản phẩm
-      await AsyncStorage.setItem('productsData', JSON.stringify(data)); // Lưu sản phẩm vào AsyncStorage
+      setFilteredProducts(filtered); // Set filtered products với các sản phẩm có categoryId tương ứng
+      await AsyncStorage.setItem('productsData', JSON.stringify(filtered)); // Lưu dữ liệu đã lọc vào AsyncStorage
       setLoading(false);
     } catch (error) {
       console.error(error);
@@ -42,10 +50,11 @@ const Lastest = ({ navigation }) => {
       setLoading(false);
     }
   };
+  
 
   useEffect(() => {
-    checkLoginStatus();
     fetchProducts();
+    checkLoginStatus();
   }, []);
 
   // Hàm xử lý tìm kiếm
@@ -120,8 +129,8 @@ const Lastest = ({ navigation }) => {
       <View style={styles.container}>
         <View style={styles.header}>
           <View style={styles.headerLeft}>
-            <TouchableOpacity style={{ marginTop: 15 }} onPress={() => navigation.openDrawer()}>
-              <Ionicons name="reorder-three-outline" size={24} color="black" />
+            <TouchableOpacity onPress={() => navigation.navigate('Navigation')}>
+          <AntDesign style={{marginTop:15}} name="arrowleft" size={24} color="black" />
             </TouchableOpacity>
             <View style={styles.searchContainer}>
               <TouchableOpacity onPress={toggleSearchFocus}>
@@ -146,10 +155,47 @@ const Lastest = ({ navigation }) => {
               color="black"
             />
           </TouchableOpacity>
+          <TouchableOpacity onPress={() => navigation.navigate('Navigation')}>
           <LogoIcon />
+          </TouchableOpacity>
         </View>
         <View style={styles.titleContainer}>
-        <Text style={styles.Title}>Sản phẩm</Text>
+          <Text style={styles.Title}>Danh mục</Text>
+        </View>
+        <View style={{flexDirection:'row'}}>
+          <TouchableOpacity onPress={() => navigation.navigate('Phone',{ categoryId: 1 })}>
+          <View style={{alignItems:'center'}}>
+            <Image style={styles.imageCategory} source={Phone1}/>
+            <Text style={styles.categoryTitle}>Điện thoại</Text>
+          </View>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => navigation.navigate('Laptop',{ categoryId: 2 })}>
+          <View style={{alignItems:'center'}}>
+            <Image style={styles.imageCategory} source={Laptop1}/>
+            <Text style={styles.categoryTitle}>Laptop</Text>
+          </View>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => navigation.navigate('Device',{ categoryId: 3 })}>
+          <View style={{alignItems:'center'}}>
+            <Image style={styles.imageCategory} source={Device1}/>
+            <Text style={styles.categoryTitle}>Đồ điện gia dụng</Text>
+          </View>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => navigation.navigate('Clock',{ categoryId: 4 })}>
+          <View style={{alignItems:'center'}}>
+            <Image style={styles.imageCategory} source={Clock1}/>
+            <Text style={styles.categoryTitle}>Đồng hồ</Text>
+          </View>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => navigation.navigate('Tivi',{ categoryId: 5 })}>
+          <View style={{alignItems:'center'}}>
+            <Image style={styles.imageCategory} source={Tivi1}/>
+            <Text style={styles.categoryTitle}>Tivi</Text>
+          </View>
+          </TouchableOpacity>
+        </View>
+        <View style={styles.titleContainer}>
+        <Text style={styles.Title}>Điện thoại</Text>
         </View>
         <FlatList
           data={filteredProducts}
@@ -163,7 +209,7 @@ const Lastest = ({ navigation }) => {
   );
 }
 
-export default Lastest;
+export default Phone;
 
 const styles = StyleSheet.create({
   container: {
@@ -189,7 +235,7 @@ const styles = StyleSheet.create({
     borderRadius:10,
     borderColor:'gray',
     padding:5,
-    marginRight:320,
+    marginRight:310,
     marginTop:10,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.8,
@@ -288,4 +334,18 @@ const styles = StyleSheet.create({
   icon: {
     paddingRight: 1,
   },
+  imageCategory: {
+    marginTop:10,
+    marginRight:20,
+    borderColor:'gray',
+    borderWidth:1,
+    width: 40,
+    height: 40,
+    borderRadius: 25,
+    marginBottom: 10,
+    marginLeft: 20,
+},
+categoryTitle:{
+  fontWeight:'bold'
+}
 });

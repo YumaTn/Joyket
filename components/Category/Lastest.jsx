@@ -30,7 +30,7 @@ const Lastest = ({ navigation }) => {
   // Hàm gọi API để lấy sản phẩm
   const fetchProducts = async () => {
     try {
-      const response = await fetch('http://10.87.3.218:8080/api/products/latest');
+      const response = await fetch('http://192.168.2.18:8080/api/products/latest');
       const data = await response.json();
       
       setFilteredProducts(data); // Giả định rằng API trả về danh sách sản phẩm
@@ -104,9 +104,6 @@ const Lastest = ({ navigation }) => {
           {item.description}
         </Text>
         <Text style={styles.discount}>Giảm giá: {item.discount}%</Text>
-        <Text style={styles.sold}>Đã bán: {item.sold}</Text>
-        <Text style={styles.category}>Danh mục: {item.category.categoryName}</Text>
-        <Text style={styles.enteredDate}>Ngày nhập: {new Date(item.enteredDate).toLocaleDateString()}</Text>
       </View>
     </TouchableOpacity>
   );
@@ -151,7 +148,9 @@ const Lastest = ({ navigation }) => {
           </TouchableOpacity>
           <LogoIcon />
         </View>
-        <Text style={styles.Title}>Sản phẩm :</Text>
+        <View style={styles.titleContainer}>
+        <Text style={styles.Title}>Sản phẩm</Text>
+        </View>
         <FlatList
           data={filteredProducts}
           renderItem={renderItem}
@@ -174,7 +173,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 5,
-    paddingTop: 20,
+    paddingTop: 30,
     paddingBottom: 10,
     backgroundColor: '#FFCA09',
     paddingLeft: 10,
@@ -185,25 +184,30 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginRight: -100,
   },
+  titleContainer:{
+    borderWidth:1,
+    borderRadius:10,
+    borderColor:'gray',
+    padding:5,
+    marginRight:320,
+    marginTop:10,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.8,
+    marginLeft:5
+  },
   Title: {
-    marginTop: 10,
     fontSize: 15,
     marginLeft: 5,
+    fontWeight:'bold',
+    color:'gray'
   },
   flatList: {
     marginTop: 10,
   },
   item: {
-    width: cardWidth,
-    borderColor: '#000', 
-    borderWidth: 1,      
+    width: cardWidth,     
     margin: 5,
     backgroundColor: '#fff',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.8,
-    shadowRadius: 2,
-    elevation: 1,
     justifyContent: 'center',
     alignItems: 'center',
     flex: 1,
@@ -212,7 +216,7 @@ const styles = StyleSheet.create({
     borderRadius: 10, 
   },
   image: {
-    width: '100%',
+    width: '50%',
     height: 120,
     borderRadius: 10, 
     resizeMode: 'cover', 

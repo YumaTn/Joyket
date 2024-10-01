@@ -56,7 +56,7 @@ const Navigation = () => {
           ),
         }}
       />
-      <Tab.Screen
+      {/* <Tab.Screen
         name={SCREENS.NOTIFICATION}
         component={Noti}
         options={{
@@ -65,7 +65,7 @@ const Navigation = () => {
             <Icon name="notifications" size={30} color={focused ? 'white' : 'black'} />
           ),
         }}
-      />
+      /> */}
       <Tab.Screen
         name={SCREENS.PROFILE}
         component={Profile}

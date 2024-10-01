@@ -15,8 +15,8 @@ const PaymentScreen = ({ route, navigation }) => {
   const [cartId, setCartId] = useState(null);
   const [totalPrice, setTotalPrice] = useState(0);
 
-  const API_URL_CART = 'http://10.87.3.218:8080/api/cart/user';
-  const API_URL_CART_DETAIL = 'http://10.87.3.218:8080/api/cartDetail/cart';
+  const API_URL_CART = 'http://192.168.2.18:8080/api/cart/user';
+  const API_URL_CART_DETAIL = 'http://192.168.2.18:8080/api/cartDetail/cart';
 
   useEffect(() => {
     const fetchUserDataFromStorage = async () => {
@@ -94,7 +94,7 @@ const PaymentScreen = ({ route, navigation }) => {
         };
   
         // Gửi yêu cầu PUT để cập nhật cart
-        const updateResponse = await axios.put(`http://10.87.3.218:8080/api/cart/user/${email}`, updatedCart);
+        const updateResponse = await axios.put(`http://192.168.2.18:8080/api/cart/user/${email}`, updatedCart);
         
         if (updateResponse.status === 200) {
           // Tạo đối tượng đơn hàng với thông tin cần thiết
@@ -106,7 +106,7 @@ const PaymentScreen = ({ route, navigation }) => {
           };
   
           // Gọi API để tạo đơn hàng
-          const orderResponse = await axios.post(`http://10.87.3.218:8080/api/orders/${email}`, orderData);
+          const orderResponse = await axios.post(`http://192.168.2.18:8080/api/orders/${email}`, orderData);
           
           if (orderResponse.status === 200) {
             alert('Đã thanh toán thành công và cập nhật thông tin!');
@@ -205,7 +205,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 10,
-    paddingTop: 30,
+    paddingTop: 50,
     paddingBottom: 10,
     backgroundColor: '#FFCA09',
     paddingLeft: 10,

@@ -16,7 +16,7 @@ const Favorite = ({ navigation }) => {
           const parsedData = JSON.parse(userData);
           const { email, token } = parsedData;
 
-          const response = await fetch(`http://10.87.3.218:8080/api/favorites/email/${email}`, {
+          const response = await fetch(`http://192.168.2.18:8080/api/favorites/email/${email}`, {
             method: 'GET',
             headers: {
               'Content-Type': 'application/json',
@@ -57,7 +57,7 @@ const Favorite = ({ navigation }) => {
       const parsedUserData = JSON.parse(userData);
       const token = parsedUserData.token;
 
-      const response = await fetch(`http://10.87.3.218:8080/api/favorites/${id}`, {
+      const response = await fetch(`http://192.168.2.18:8080/api/favorites/${id}`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
@@ -101,7 +101,7 @@ const Favorite = ({ navigation }) => {
         return;
       }
   
-      const cartResponse = await fetch(`http://10.87.3.218:8080/api/cart/user/${email}`, {
+      const cartResponse = await fetch(`http://192.168.2.18:8080/api/cart/user/${email}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -124,7 +124,7 @@ const Favorite = ({ navigation }) => {
         cart: { cartId: cartId },
       };
   
-      const postDetailResponse = await fetch(`http://10.87.3.218:8080/api/cartDetail`, {
+      const postDetailResponse = await fetch(`http://192.168.2.18:8080/api/cartDetail`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -137,7 +137,7 @@ const Favorite = ({ navigation }) => {
   
       if (postDetailResponse.ok) {
         Alert.alert('Success', 'Thêm sản phẩm vào giỏ hàng thành công!');
-        const allDetailsResponse = await fetch(`http://10.87.3.218:8080/api/cartDetail/cart/${cartId}`, {
+        const allDetailsResponse = await fetch(`http://192.168.2.18:8080/api/cartDetail/cart/${cartId}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -216,13 +216,14 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 5,
-    paddingTop: 30,
+    paddingTop: 50,
     backgroundColor: '#FFCA09',
     paddingBottom: 10,
   },
   info: {
     fontSize: 20,
     paddingLeft: 20,
+    fontWeight:'bold'
   },
   detailContainer: {
     flexDirection: 'row',
