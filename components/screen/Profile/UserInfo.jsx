@@ -31,7 +31,7 @@ const UserInfo = ({ navigation }) => {
                     setAddress(parsedData.address);
                     setGender(parsedData.gender === true ? 'male' : 'female');
                     setImage(parsedData.image);
-                    setUserId(parsedData.userId); 
+                    setUserId(parsedData.id); 
                     setToken(parsedData.token);
                 }
             } catch (error) {

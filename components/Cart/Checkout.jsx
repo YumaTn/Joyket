@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, FlatList, StyleSheet, ActivityIndicator } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { ScrollView } from 'react-native-gesture-handler';
 
 const PaymentScreen = ({ route, navigation }) => {
   const { selectedCartDetailIds, discount = 0 } = route.params;
@@ -63,7 +64,7 @@ const PaymentScreen = ({ route, navigation }) => {
           const details = response.data.filter(item => selectedCartDetailIds.includes(item.cartDetailId));
           
           // Calculate total price
-          const total = details.reduce((sum, item) => sum + (item.price ), 0);
+          const total = details.reduce((sum, item) => sum + item.price, 0);
           const discountedTotal = total - discount;
           setCartDetails(details);
           setTotalPrice(discountedTotal < 0 ? 0 : discountedTotal);
@@ -80,37 +81,31 @@ const PaymentScreen = ({ route, navigation }) => {
 
   const handleConfirmPayment = async () => {
     try {
-      // Gọi API để lấy cart thông qua email
       const cartResponse = await axios.get(`${API_URL_CART}/${email}`);
       const cart = cartResponse.data;
-  
-      // So sánh cartId từ API với cartId từ state
+
       if (cart.cartId === cartId) {
-        // Tạo đối tượng cart đã cập nhật với thông tin mới
         const updatedCart = {
-          ...cart, // Giữ nguyên các thông tin khác của cart
+          ...cart,
           address: address,
           phone: phone,
         };
-  
-        // Gửi yêu cầu PUT để cập nhật cart
+
         const updateResponse = await axios.put(`http://192.168.2.18:8080/api/cart/user/${email}`, updatedCart);
         
         if (updateResponse.status === 200) {
-          // Tạo đối tượng đơn hàng với thông tin cần thiết
           const orderData = {
-            cartId: cartId,  // ID giỏ hàng
-            address: address,  // Địa chỉ giao hàng
-            phone: phone,  // Số điện thoại liên hệ
-            discount: discount,  // Giảm giá (nếu có)
+            cartId: cartId,
+            address: address,
+            phone: phone,
+            discount: discount,
           };
-  
-          // Gọi API để tạo đơn hàng
+
           const orderResponse = await axios.post(`http://192.168.2.18:8080/api/orders/${email}`, orderData);
           
           if (orderResponse.status === 200) {
             alert('Đã thanh toán thành công và cập nhật thông tin!');
-            navigation.navigate('Navigation'); // Điều hướng đến trang tiếp theo
+            navigation.navigate('Navigation');
           } else {
             alert('Có lỗi xảy ra khi tạo đơn hàng.');
           }
@@ -125,15 +120,6 @@ const PaymentScreen = ({ route, navigation }) => {
       alert('Có lỗi xảy ra khi cập nhật thông tin.');
     }
   };
-  
-
-  const renderItem = ({ item }) => (
-    <View style={styles.summaryRow}>
-      <Text style={styles.summaryText}>{item.product.name}</Text> 
-      <Text style={styles.summaryText}>{item.quantity}</Text>
-      <Text style={styles.summaryText}>{(item.price).toLocaleString()} VND</Text>
-    </View>
-  );
 
   return (
     <View style={styles.container}>
@@ -145,6 +131,7 @@ const PaymentScreen = ({ route, navigation }) => {
           </View>
         </TouchableOpacity>
       </View>
+      <ScrollView>
       <Text style={styles.textTitle}>Họ và tên</Text>
       <TextInput
         style={styles.input}
@@ -178,11 +165,13 @@ const PaymentScreen = ({ route, navigation }) => {
         {loading ? (
           <ActivityIndicator size="large" color="#0000ff" />
         ) : (
-          <FlatList
-            data={cartDetails}
-            keyExtractor={(item) => item.cartDetailId.toString()}
-            renderItem={renderItem}
-          />
+          cartDetails.map((item) => (
+            <View key={item.cartDetailId} style={styles.summaryRow}>
+              <Text style={styles.summaryText}>{item.product.name}</Text>
+              <Text style={styles.summaryText}>{item.quantity}</Text>
+              <Text style={styles.summaryText}>{item.price.toLocaleString()} VND</Text>
+            </View>
+          ))
         )}
         
         <View style={styles.totalContainer}>
@@ -193,9 +182,11 @@ const PaymentScreen = ({ route, navigation }) => {
       <TouchableOpacity style={styles.paymentButton} onPress={handleConfirmPayment}>
         <Text style={styles.paymentButtonText}>Xác nhận thanh toán</Text>
       </TouchableOpacity>
+      </ScrollView>
     </View>
   );
 };
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -257,7 +248,7 @@ const styles = StyleSheet.create({
   paymentButton: {
     backgroundColor: 'black',
     padding: 15,
-    margin:40,
+    margin: 40,
     borderRadius: 8,
     marginTop: 20,
     alignItems: 'center',
@@ -270,22 +261,22 @@ const styles = StyleSheet.create({
   totalContainer: {
     marginTop: 20,
     padding: 16,
-    paddingLeft:0,
-    paddingBottom:0,
+    paddingLeft: 0,
+    paddingBottom: 0,
     backgroundColor: '#f9f9f9',
+    borderRadius: 8,
   },
   totalText: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: 'bold',
-    color:'red',
+  },
+  summaryNumber: {
+    fontWeight: 'bold',
   },
   textTitle:{
     fontWeight:'bold',
     marginLeft:5,
   },
-  summaryNumber:{
-    marginLeft:10,
-  }
 });
 
 export default PaymentScreen;

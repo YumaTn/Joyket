@@ -99,11 +99,12 @@ const Lastest = ({ navigation }) => {
       )}
       <View style={styles.textContainer}>
         <Text style={styles.name} numberOfLines={1}>{item.name}</Text>
-        <Text style={styles.price}>{formatPrice(item.price)}</Text>
-        <Text style={styles.description} numberOfLines={3}>
-          {item.description}
-        </Text>
-        <Text style={styles.discount}>Giảm giá: {item.discount}%</Text>
+        <View style={styles.priceAndDiscount}>
+        <Text style={styles.price}>{formatPrice(item.price)} Vnđ</Text>
+        <View style={styles.discountContainer}>
+        <Text style={styles.discount}>- {item.discount}%</Text>
+        </View>
+        </View>
       </View>
     </TouchableOpacity>
   );
@@ -167,6 +168,7 @@ export default Lastest;
 
 const styles = StyleSheet.create({
   container: {
+    backgroundColor: '#ffffff',
   },
   header: {
     flexDirection: 'row',
@@ -175,7 +177,7 @@ const styles = StyleSheet.create({
     marginBottom: 5,
     paddingTop: 30,
     paddingBottom: 10,
-    backgroundColor: '#FFCA09',
+    backgroundColor: '#ffffff',
     paddingLeft: 10,
     paddingRight: 40,
   },
@@ -189,7 +191,7 @@ const styles = StyleSheet.create({
     borderRadius:10,
     borderColor:'gray',
     padding:5,
-    marginRight:320,
+    width:100,
     marginTop:10,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.8,
@@ -240,11 +242,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 5,
   },
-  discount: {
-    fontSize: 12,
-    color: 'red',
-    textAlign: 'center',
-  },
   sold: {
     fontSize: 12,
     color: '#333',
@@ -288,4 +285,23 @@ const styles = StyleSheet.create({
   icon: {
     paddingRight: 1,
   },
+  discountContainer:{
+    borderWidth:1,
+    borderColor:'#652B37',
+    paddingLeft:5,
+    borderRadius:2,
+    paddingRight:5,
+    backgroundColor:'#652B37',
+    marginLeft:5,
+  },
+  discount: {
+    fontSize: 12,
+    color: '#E95C77',
+    textAlign: 'center',
+  },
+  priceAndDiscount:{
+    flexDirection:'row',
+    justifyContent:'center',
+    alignItems:'center'
+  }
 });

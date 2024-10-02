@@ -1,16 +1,12 @@
 import React from 'react';
-import Icon from 'react-native-vector-icons/MaterialIcons'; 
-import Home from '../screen/Home/Home.jsx';
 import Noti from '../screen/Notification/Noti.jsx';
 import Profile from '../screen/Profile/Profile.jsx';
 import SCREENS from './index.jsx';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Favorite from '../screen/Favorite/Favorite.jsx';
-import { TouchableOpacity } from 'react-native-gesture-handler';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { useNavigation } from '@react-navigation/native';
 import Categorynavigation from './Categorynavigation.jsx';
-
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 const Tab = createBottomTabNavigator();
 
 const Navigation = () => { 
@@ -23,8 +19,8 @@ const Navigation = () => {
           position: 'absolute',
           borderTopLeftRadius: 15,
           borderTopRightRadius: 15,
-          backgroundColor: '#FFCA09',
-          shadowColor: '#000',
+          backgroundColor: '#ffffff',
+          shadowColor: '#CCCCCC',
           paddingTop:5,
           shadowOffset: {
             width: 0,
@@ -41,8 +37,12 @@ const Navigation = () => {
         component={Categorynavigation}
         options={{
           title: '',
-          tabBarIcon: ({ focused }) => (
-            <Icon name="home" size={30} color={focused ? 'white' : 'black'} />
+          tabBarIcon: ({ focused }) => ( 
+            <Ionicons 
+            name={focused ? "home" : "home-outline"} // Đổi icon khi nhấn
+            size={24}
+            color={focused ? "#FFCA09" : "black"}
+            />
           ),
         }}
       />
@@ -52,7 +52,12 @@ const Navigation = () => {
         options={{
           title: '',
           tabBarIcon: ({ focused }) => (
-            <Icon name="favorite" size={30} color={focused ? 'white' : 'black'} />
+            <MaterialCommunityIcons 
+            name={focused ? "heart" : "cards-heart-outline"} // Đổi icon khi nhấn
+            size={24}
+            color={focused ? "#FFCA09" : "black"}
+            
+            />
           ),
         }}
       />
@@ -72,7 +77,11 @@ const Navigation = () => {
         options={{
           title: '',
           tabBarIcon: ({ focused }) => (
-            <Icon name="person" size={30} color={focused ? 'white' : 'black'} />
+            <Ionicons
+        name={focused ? "person" : "person-outline"} // Đổi icon khi nhấn
+        size={24}
+        color={focused ? "#FFCA09" : "black"} // Đổi màu icon khi nhấn
+      />
           ),
         }}
       />

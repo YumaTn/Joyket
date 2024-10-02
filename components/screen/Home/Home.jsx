@@ -21,7 +21,6 @@ const Home = ({ navigation }) => {
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const searchInputRef = useRef(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [selectedComponent, setSelectedComponent] = useState("");
 
   useEffect(() => {
     const checkLoginStatus = async () => {
@@ -101,7 +100,7 @@ const Home = ({ navigation }) => {
   const renderItem = ({ item }) => (
     <TouchableOpacity
       style={styles.item}
-      onPress={() => navigation.navigate('ProductDetail', { productId: item.productId })} 
+      onPress={() => navigation.navigate('ProductDetailOther', { productId: item.productId })} 
     >
       {item.image ? (
         <Image source={{ uri: item.image }} style={styles.image} />
@@ -110,11 +109,15 @@ const Home = ({ navigation }) => {
       )}
       <View style={styles.textContainer}>
         <Text style={styles.name} numberOfLines={1}>{item.name}</Text>
-        <Text style={styles.price}>{formatPrice(item.price)}</Text>
-        <Text style={styles.description} numberOfLines={3}>
-          {item.description}
+        <View style={styles.priceAndDiscount}>
+        <Text style={styles.price}>{formatPrice(item.price)} Vnđ</Text>
+        <View style={styles.discountContainer}>
+        <Text style={styles.discount}>- {item.discount}%</Text>
+        </View>
+        </View>
+        <Text style={styles.sold}>
+          Đã bán {item.sold}
         </Text>
-        <Text style={styles.discount}>Giảm giá: {item.discount}%</Text>
       </View>
     </TouchableOpacity>
   );
@@ -164,6 +167,7 @@ const Home = ({ navigation }) => {
         <View style={styles.titleContainer}>
           <Text style={styles.Title}>Danh mục</Text>
         </View>
+        
         <View style={{flexDirection:'row'}}>
           <TouchableOpacity onPress={() => navigation.navigate('Phone',{ categoryId: 1 })}>
           <View style={{alignItems:'center'}}>
@@ -205,6 +209,7 @@ const Home = ({ navigation }) => {
           keyExtractor={(item) => item.productId ? item.productId.toString() : Math.random().toString()}
           style={styles.flatList}
           numColumns={numColumns}
+          onScrollBeginDrag={() => Keyboard.dismiss()}
         />
       </View>
     </TouchableWithoutFeedback>
@@ -215,6 +220,7 @@ const styles = StyleSheet.create({
   // Các style của component
   container: {
     flex: 1,
+    backgroundColor:'white'
   },
   header: {
     flexDirection: 'row',
@@ -223,7 +229,6 @@ const styles = StyleSheet.create({
     marginBottom: 5,
     paddingTop: 30,
     paddingBottom: 10,
-    backgroundColor: '#FFCA09',
     paddingLeft: 10,
     paddingRight: 40,
   },
@@ -263,8 +268,8 @@ const styles = StyleSheet.create({
   },
   textContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: 'flex-start',
+    alignItems: 'flex-start',
     paddingHorizontal: 5,
   },
   name: {
@@ -281,7 +286,7 @@ const styles = StyleSheet.create({
   },
   discount: {
     fontSize: 12,
-    color: 'red',
+    color: '#E95C77',
     textAlign: 'center',
   },
   sold: {
@@ -332,7 +337,7 @@ const styles = StyleSheet.create({
     borderRadius:10,
     borderColor:'gray',
     padding:5,
-    marginRight:320,
+    width:100,
     marginTop:10,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.8,
@@ -357,6 +362,20 @@ const styles = StyleSheet.create({
 },
 categoryTitle:{
   fontWeight:'bold'
+},
+discountContainer:{
+  borderWidth:1,
+  borderColor:'#652B37',
+  paddingLeft:5,
+  borderRadius:2,
+  paddingRight:5,
+  backgroundColor:'#652B37',
+  marginLeft:5,
+},
+priceAndDiscount:{
+  flexDirection:'row',
+  justifyContent:'center',
+  alignItems:'center'
 }
 });
 

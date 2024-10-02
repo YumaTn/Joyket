@@ -7,7 +7,7 @@ import axios from 'axios';
 
 const History = ({ navigation }) => {
   const [orderHistory, setOrderHistory] = useState([]);
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState([]);
   const [orderDetails, setOrderDetails] = useState([]);
 
   useEffect(() => {
@@ -30,26 +30,21 @@ const History = ({ navigation }) => {
   const fetchOrderHistory = async (email) => {
     try {
       const response = await axios.get(`http://192.168.2.18:8080/api/orders/user/${email}`);
+      setOrderHistory(response.data);
       
-      // Sort the orders by date (assuming there's a date field like 'orderDate')
-      const sortedOrders = response.data.sort((a, b) => new Date(b.orderDate) - new Date(a.orderDate));
-      setOrderHistory(sortedOrders);
-  
-      // Fetch details for each order
-      sortedOrders.forEach(order => {
+      // Fetch order details for each order
+      response.data.forEach(order => {
         fetchOrderDetails(order.ordersId);
       });
     } catch (error) {
       console.error('Error fetching order history', error);
     }
   };
-  
+
   const fetchOrderDetails = async (ordersId) => {
     try {
       const response = await axios.get(`http://192.168.2.18:8080/api/orderDetail/order/${ordersId}`);
-
-      // Assuming response.data contains an array of details
-      setOrderDetails(prevDetails => [...prevDetails, ...response.data]); // Append to existing details
+      setOrderDetails(prevDetails => [...prevDetails, ...response.data]);
     } catch (error) {
       console.error('Error fetching order details', error);
     }
@@ -59,15 +54,23 @@ const History = ({ navigation }) => {
     if (price) {
       return price.toLocaleString('vi-VN');
     }
-    return 'N/A'; 
+    return 'N/A';
   };
+
+  // Sắp xếp orderDetails trong render
+  const sortedOrderDetails = [...orderDetails].sort((a, b) => {
+    const orderA = orderHistory.find(order => order.ordersId === a.ordersId);
+    const orderB = orderHistory.find(order => order.ordersId === b.ordersId);
+    return new Date(orderB?.orderDate) - new Date(orderA?.orderDate);
+  });
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <View style={styles.titleContainer}>
             <MaterialIcons style={{ marginLeft: 10 }} name="keyboard-arrow-left" size={24} color="black" />
-            <Text style={styles.info}>History</Text>
+            <Text style={styles.info}>Lịch sử</Text>
           </View>
         </TouchableOpacity>
         <View style={styles.historyIcon}>
@@ -76,23 +79,35 @@ const History = ({ navigation }) => {
       </View>
 
       <ScrollView>
-        {orderDetails.length > 0 ? (
-          orderDetails.map((detail, index) => (
-            <View key={index} style={styles.detailContainer}>
-              {detail.product && detail.product.image ? (
-                <Image source={{ uri: detail.product.image }} style={styles.image} />
-              ) : (
-                <View style={styles.imagePlaceholder} />
-              )}
-              <View style={styles.textContainer}>
-                <Text style={styles.productName}>Bạn đã đặt {detail.product?.name || 'N/A'}</Text>
-                <Text style={styles.quantity}>Số lượng: {detail.quantity || 'N/A'}</Text>
-              </View>
-              <Text style={styles.productPrice}>-{formatPrice(detail.product?.price) || 'N/A'} VNĐ</Text>
-            </View>
-          ))
+        {sortedOrderDetails.length > 0 ? (
+          sortedOrderDetails.map((detail, index) => {
+            // Tìm orderId tương ứng với detail
+            const order = orderHistory.find(order => order.ordersId === detail.order.ordersId);
+            return (
+              <TouchableOpacity 
+                key={index} 
+                onPress={() => navigation.navigate('HistoryDetail', { 
+                  ordersId: order?.ordersId, // Truyền ordersId vào HistoryDetail
+                  orderDetailId: detail.orderDetailId 
+                })}
+              >
+                <View style={styles.detailContainer}>
+                  {detail.product && detail.product.image ? (
+                    <Image source={{ uri: detail.product.image }} style={styles.image} />
+                  ) : (
+                    <View style={styles.imagePlaceholder} />
+                  )}
+                  <View style={styles.textContainer}>
+                    <Text style={styles.productName}>Bạn đã đặt {detail.product?.name || 'N/A'}</Text>
+                    <Text style={styles.quantity}>Số lượng: {detail.quantity || 'N/A'}</Text>
+                  </View>
+                  <Text style={styles.productPrice}>-{formatPrice(detail.product?.price) || 'N/A'} VNĐ</Text>
+                </View>
+              </TouchableOpacity>
+            );
+          })
         ) : (
-          <Text style={styles.noOrdersText}>No order details available</Text>
+          <Text style={styles.noOrdersText}>Không có chi tiết đơn hàng nào</Text>
         )}
       </ScrollView>
     </View>
@@ -130,7 +145,7 @@ const styles = StyleSheet.create({
   detailContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center', // Center elements vertically
+    alignItems: 'center',
     padding: 15,
     marginBottom: 10,
     backgroundColor: '#fff',
@@ -138,8 +153,8 @@ const styles = StyleSheet.create({
     elevation: 1,
   },
   textContainer: {
-    flex: 1, // Take up the remaining space
-    marginLeft: 10, // Adds space between image and text
+    flex: 1,
+    marginLeft: 10,
   },
   productName: {
     fontSize: 18,
@@ -148,8 +163,8 @@ const styles = StyleSheet.create({
   productPrice: {
     fontSize: 16,
     color: 'red',
-    textAlign: 'right', // Align price to the right
-    flex: 0.4, // Ensure price stays to the right
+    textAlign: 'right',
+    flex: 0.4,
   },
   quantity: {
     fontSize: 16,

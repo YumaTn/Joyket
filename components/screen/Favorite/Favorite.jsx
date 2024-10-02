@@ -39,10 +39,10 @@ const Favorite = ({ navigation }) => {
       }
     };
 
-    const intervalId = setInterval(fetchFavorites, 5000); // Kiểm tra dữ liệu mới mỗi 5 giây
-    fetchFavorites(); // Gọi ngay lần đầu tiên
+    const intervalId = setInterval(fetchFavorites, 5000); 
+    fetchFavorites(); 
 
-    return () => clearInterval(intervalId); // Dọn dẹp interval khi unmount
+    return () => clearInterval(intervalId); 
   }, []);
 
   const removeFromFavorites = async (id) => {
@@ -217,8 +217,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 5,
     paddingTop: 50,
-    backgroundColor: '#FFCA09',
+    backgroundColor: '#ffffff',
     paddingBottom: 10,
+    borderBottomWidth:1,
+    borderColor:'#CCCCCC'
   },
   info: {
     fontSize: 20,

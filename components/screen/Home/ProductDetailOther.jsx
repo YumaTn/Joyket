@@ -5,12 +5,12 @@ import FontAwesome from '@expo/vector-icons/FontAwesome';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ScrollView } from 'react-native-gesture-handler';
 import { LogoIcon } from '../../../assets/icon';
-import BestSellerInDetail from './BestSellerInDetail';
 import RateDetail from '../../Rate/RateDetail';
+import BestSellerInDetailOther from './BestSellerDetailOther';
 
 const { width } = Dimensions.get('window');
 
-const ProductDetail = ({ route, navigation }) => {
+const ProductDetailOther = ({ route, navigation }) => {
   const [product, setProduct] = useState({});
   const { productId,onSelect } = route.params;
   const [ProductDetailImage, setProductDetailImage] = useState(null);
@@ -348,7 +348,7 @@ const handleSelect = () => {
           <Text>No product found</Text>
         )}
         <RateDetail productId={productId}/>
-        <BestSellerInDetail navigation={navigation}/>
+        <BestSellerInDetailOther navigation={navigation}/>
       </ScrollView>
     </View>
   );
@@ -456,4 +456,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ProductDetail;
+export default ProductDetailOther;

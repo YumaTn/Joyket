@@ -19,6 +19,10 @@ import Laptop from './components/Category/Laptop';
 import Tivi from './components/Category/Tivi';
 import Device from './components/Category/Device';
 import Clock from './components/Category/Clock';
+import HistoryDetail from './components/History/HistoryDetail';
+import Rate from './components/Rate/Rate';
+import ProductDetailOther from './components/screen/Home/ProductDetailOther';
+import ChatboxAl from './components/ChatboxAI/ChatboxAl';
 const Stack = createStackNavigator();
 
 export default function App() {
@@ -78,6 +82,18 @@ export default function App() {
           <Stack.Screen
           name="Clock"
           component={Clock} />
+          <Stack.Screen
+          name="HistoryDetail"
+          component={HistoryDetail} />
+          <Stack.Screen
+          name="Rate"
+          component={Rate} />
+          <Stack.Screen
+          name="ProductDetailOther"
+          component={ProductDetailOther} />
+          <Stack.Screen
+          name="ChatboxAl"
+          component={ChatboxAl} />
       </Stack.Navigator>
     </NavigationContainer>
   );

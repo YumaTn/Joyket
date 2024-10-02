@@ -25,8 +25,8 @@ const Login = ({ navigation }) => {
                 email,
                 password,
             });
-
-            const { name, phone, address, gender, registerDate, token, image, status, id } = response.data;
+    
+            const { name, phone, address, gender, registerDate, token, image, status, id } = response.data; // Updated here
             await AsyncStorage.setItem('userData', JSON.stringify({
                 email,
                 name,
@@ -40,13 +40,13 @@ const Login = ({ navigation }) => {
                 id,
                 password
             }));
-
+    
             navigation.replace('Navigation');
         } catch (error) {
             Alert.alert('Lỗi', 'Đăng nhập thất bại. Vui lòng kiểm tra lại.');
         }
     };
-
+    
     return (
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
             <KeyboardAvoidingView style={styles.container} behavior="padding">

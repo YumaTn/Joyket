@@ -4,6 +4,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
+import { BotIcon } from '../../../assets/icon';
 const Profile = ({ navigation }) => {
     const [username, setUsername] = useState('');
     const [image, setImage] = useState(null);
@@ -83,6 +84,14 @@ const Profile = ({ navigation }) => {
                                 <MaterialIcons name="keyboard-arrow-right" size={24} color="black" />
                             </View>
                         </TouchableOpacity>
+                        <TouchableOpacity onPress={() => navigation.navigate('ChatboxAl')}>
+                            <View style={{marginLeft:20,marginTop:20,flexDirection:'row'}}>
+                            <BotIcon/>
+                                <Text style={{marginBottom:10,fontSize:16,marginTop:10,marginLeft:10}}>
+                                    Trợ giúp
+                                </Text>
+                            </View>
+                        </TouchableOpacity>
                         <TouchableOpacity onPress={handleLogout}>
                             <View style={styles.logoutContainer}>
                                 <Text style={styles.logoutText}>Đăng xuất</Text>
@@ -114,7 +123,9 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         marginBottom: 5,
         paddingTop: 40,
-        backgroundColor: '#FFCA09',
+        backgroundColor: '#F7C945',
+        borderWidth:1,
+        borderColor:'#CCCCCC',
         paddingBottom:10,
     },
     info: {
